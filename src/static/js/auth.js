@@ -168,9 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Register form handling
   const registerForm = document.getElementById("register-form");
+
   if (registerForm) {
     registerForm.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const name = document.getElementById("register-name").value;
       const email = document.getElementById("register-email").value;
       const password = document.getElementById("register-password").value;
@@ -188,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("terms-error").style.display = "none";
       feedback.textContent = "";
       feedback.style.display = "none";
+      successMessage.style.display = "none";
 
       if (name.length < 2) {
         document.getElementById("name-error").textContent =
@@ -226,13 +229,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (isValid) {
         button.classList.add("btn-loading");
-        setTimeout(() => {
-          button.classList.remove("btn-loading");
-          successMessage.style.display = "block";
-          setTimeout(() => {
-            window.location.href = "login.html";
-          }, 2000);
-        }, 1500);
+
+        fetch("/api/create-user", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            button.classList.remove("btn-loading");
+            if (data.success) {
+              successMessage.style.display = "block";
+              successMessage.textContent =
+                "Registration successful! Redirecting to login...";
+              successMessage.style.backgroundColor = "#d4edda";
+              successMessage.style.color = "#155724";
+              successMessage.style.border = "1px solid #c3e6cb";
+
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 2000);
+            } else {
+              feedback.textContent =
+                data.message || "Registration failed. Please try again.";
+              feedback.style.display = "block";
+              feedback.style.backgroundColor = "#f8d7da";
+              feedback.style.color = "#721c24";
+              feedback.style.border = "1px solid #f5c6cb";
+            }
+          })
+          .catch((error) => {
+            button.classList.remove("btn-loading");
+            feedback.textContent = "An error occurred. Please try again.";
+            feedback.style.display = "block";
+            feedback.style.backgroundColor = "#f8d7da";
+            feedback.style.color = "#721c24";
+            feedback.style.border = "1px solid #f5c6cb";
+            console.error("Registration error:", error);
+          });
       }
     });
   }

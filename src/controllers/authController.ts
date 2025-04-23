@@ -5,16 +5,26 @@ import {
   getUserById,
   updateUser,
   deleteUser,
+  authenticateUser,
 } from "../services/authService";
+import { generateToken } from "../utils/helpers";
 
 export default class AuthController {
   static async create(c: Context) {
     const { name, email, password } = await c.req.json();
+
     if (!name || !email || !password) {
       return c.json({ message: "Name, email, and password are required" }, 400);
     }
-    const user = await createUser(name, email, password);
-    return c.json(user);
+
+    const user = await authenticateUser(email);
+
+    if (user) {
+      return c.json({ message: "Email already on use" }, 409);
+    }
+
+    await createUser(name, email, password);
+    return c.json({ message: "User created successfully", success: true });
   }
 
   static async getAll(c: Context) {
@@ -64,10 +74,14 @@ export default class AuthController {
     if (!email || !password) {
       return c.json({ message: "Email and password are required" }, 400);
     }
-    const user = await getUserById(email);
+    const user = await authenticateUser(email);
+
     if (!user || user.password !== password) {
       return c.json({ message: "Invalid email or password" }, 401);
     }
-    return c.json({ message: "Login successful", user });
+
+    const token = generateToken(user);
+
+    return c.json({ message: "Login successful", token });
   }
 }
