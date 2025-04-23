@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Reports Dashboard</title>
+    <link rel="stylesheet" href="/static/css/admin-dashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css"
+    />
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>BookStore Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-item">
+            <a href="/dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+            >
+          </div>
+          <div class="nav-item">
+            <a href="/customers"><i class="fas fa-users"></i> Customers</a>
+          </div>
+          <div class="nav-item active">
+            <a href="/reports"><i class="fas fa-chart-line"></i> Reports</a>
+          </div>
+          <div class="nav-item">
+            <a href="/logout"
+              ><i class="fas fa-right-from-bracket"></i> Logout</a
+            >
+          </div>
+        </nav>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="header">
+          <h1>Sales Reports</h1>
+          <div class="report-controls">
+            <div class="date-range">
+              <label for="report-range">Date Range:</label>
+              <select id="report-range">
+                <option value="7days">Last 7 Days</option>
+                <option value="30days">Last 30 Days</option>
+                <option value="90days">Last 90 Days</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="export-report">
+              <i class="fas fa-download"></i> Export Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="report-cards">
+          <div class="report-card">
+            <div class="report-card-header">
+              <h3>Total Revenue</h3>
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="report-card-body">
+              <span class="report-value">₱24,589</span>
+              <span class="report-change positive">+12.5%</span>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-card-header">
+              <h3>Total Orders</h3>
+              <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="report-card-body">
+              <span class="report-value">1,248</span>
+              <span class="report-change positive">+8.3%</span>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-card-header">
+              <h3>New Customers</h3>
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="report-card-body">
+              <span class="report-value">187</span>
+              <span class="report-change negative">-2.1%</span>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <div class="report-card-header">
+              <h3>Avg. Order Value</h3>
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="report-card-body">
+              <span class="report-value">₱42.50</span>
+              <span class="report-change positive">+3.7%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-container">
+          <div class="chart-card">
+            <h3>Sales Trend</h3>
+            <canvas id="sales-chart"></canvas>
+          </div>
+
+          <div class="chart-card">
+            <h3>Top Selling Books</h3>
+            <canvas id="books-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="recent-orders">
+          <h3>Recent Orders</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#ORD-1001</td>
+                <td>John Smith</td>
+                <td>2023-06-15</td>
+                <td>$89.99</td>
+                <td>
+                  <span class="status-badge status-completed">Completed</span>
+                </td>
+              </tr>
+              <tr>
+                <td>#ORD-1002</td>
+                <td>Sarah Johnson</td>
+                <td>2023-06-14</td>
+                <td>$42.50</td>
+                <td>
+                  <span class="status-badge status-completed">Completed</span>
+                </td>
+              </tr>
+              <tr>
+                <td>#ORD-1003</td>
+                <td>Michael Brown</td>
+                <td>2023-06-14</td>
+                <td>$125.75</td>
+                <td>
+                  <span class="status-badge status-shipping">Shipping</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="/static/js/reports.js"></script>
+  </body>
+</html>

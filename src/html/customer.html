@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Customer Management</title>
+    <link rel="stylesheet" href="/static/css/admin-dashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>BookStore Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-item">
+            <a href="/dashboard"
+              ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+            >
+          </div>
+          <div class="nav-item active">
+            <a href="/customers"><i class="fas fa-users"></i> Customers</a>
+          </div>
+          <div class="nav-item">
+            <a href="/reports"><i class="fas fa-chart-line"></i> Reports</a>
+          </div>
+          <div class="nav-item">
+            <a href="/logout"
+              ><i class="fas fa-right-from-bracket"></i> Logout</a
+            >
+          </div>
+        </nav>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="header">
+          <h1>Customer Management</h1>
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input
+              type="text"
+              id="customer-search"
+              placeholder="Search customers..."
+            />
+          </div>
+        </div>
+
+        <div class="action-bar">
+          <div class="filter-group">
+            <label for="customer-filter">Filter:</label>
+            <select id="customer-filter">
+              <option value="all">All Customers</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="premium">Premium</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Joined</th>
+                <th>Orders</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customers-table-body">
+              <!-- Customers loaded via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination">
+          <button class="btn btn-outline" id="prev-page">Previous</button>
+          <span id="page-info">Page 1 of 5</span>
+          <button class="btn btn-outline" id="next-page">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Modal -->
+    <div class="modal" id="customer-modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2 id="modal-title">Add New Customer</h2>
+        <form id="customer-form">
+          <input type="hidden" id="customer-id" />
+          <div class="form-group">
+            <label for="customer-name">Full Name</label>
+            <input type="text" id="customer-name" required />
+          </div>
+          <div class="form-group">
+            <label for="customer-email">Email</label>
+            <input type="email" id="customer-email" required />
+          </div>
+          <div class="form-group">
+            <label for="customer-phone">Phone</label>
+            <input type="tel" id="customer-phone" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="customer-status">Status</label>
+              <select id="customer-status">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="customer-type">Type</label>
+              <select id="customer-type">
+                <option value="regular">Regular</option>
+                <option value="premium">Premium</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" id="cancel-customer">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Customer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="/static/js/customers.js"></script>
+  </body>
+</html>
