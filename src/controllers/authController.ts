@@ -82,6 +82,11 @@ export default class AuthController {
 
     const token = generateToken(user);
 
-    return c.json({ message: "Login successful", token });
+    const session = c.get("session");
+
+    session.set("id", user.xata_id);
+    session.set("jwt", token);
+
+    return c.redirect(`/dashboard`, 302);
   }
 }

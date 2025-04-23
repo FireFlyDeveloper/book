@@ -9,6 +9,7 @@
   "dependencies": {
     "@hono/node-server": "^1.14.1",
     "hono": "^4.7.7",
+    "hono-sessions": "^0.7.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.15.2",
     "prettier": "^3.5.3"
