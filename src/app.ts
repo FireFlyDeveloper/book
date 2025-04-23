@@ -7,6 +7,9 @@ import { CookieStore, Session, sessionMiddleware } from "hono-sessions";
 import { SessionDataTypes } from "./model/types";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import { checkMiddleware } from "./middlewares/checkMiddleware";
+import adminRouter from "./routes/adminRoutes";
+import cartRouter from "./routes/cartRoutes";
+import cartItemRouter from "./routes/cartItemRoutes";
 
 const app = new Hono<{
   Variables: {
@@ -34,6 +37,9 @@ app.use("/static/*", serveStatic({ root: "./src/" }));
 
 app.route("/api", authRouter);
 app.route("/api", booksRouter);
+app.route("/api", adminRouter);
+app.route("/api", cartRouter);
+app.route("/api", cartItemRouter);
 app.get("/logout", async (c: Context) => {
   const session = c.get("session");
   session.forget("id");
