@@ -4,6 +4,8 @@ import { serveHTML } from "./helpers/serverHTML";
 import authRouter from "./routes/auth";
 import { CookieStore, Session, sessionMiddleware } from "hono-sessions";
 import { SessionDataTypes } from "./model/types";
+import { authMiddleware } from "./middlewares/authMiddleware";
+import { checkMiddleware } from "./middlewares/checkMiddleware";
 
 const app = new Hono<{
   Variables: {
@@ -37,7 +39,10 @@ app.post("/logout", async (c: Context) => {
   return c.json({ message: "Logged out successfully" });
 });
 
-app.get("/login", (c) => c.html(serveHTML("login.html")));
-app.get("/register", (c) => c.html(serveHTML("register.html")));
+app.get("/login", checkMiddleware, (c) => c.html(serveHTML("login.html")));
+app.get("/register", checkMiddleware, (c) =>
+  c.html(serveHTML("register.html")),
+);
+app.get("/home", authMiddleware, (c) => c.html(serveHTML("index.html")));
 
 export default app;

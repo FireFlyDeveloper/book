@@ -247,10 +247,6 @@ document.addEventListener("DOMContentLoaded", function () {
               successMessage.style.backgroundColor = "#d4edda";
               successMessage.style.color = "#155724";
               successMessage.style.border = "1px solid #c3e6cb";
-
-              setTimeout(() => {
-                window.location.href = "/login";
-              }, 2000);
             } else {
               feedback.textContent =
                 data.message || "Registration failed. Please try again.";

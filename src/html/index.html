@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ESTRELLA Bookstore</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<link href="/static/css/styles.css" rel="stylesheet"/>
+<style>
+  /* Additional styles for the orders section */
+  .orders-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+  }
+  
+  .orders-tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  
+  .orders-tab.active {
+    border-bottom-color: #4a6fa5;
+    font-weight: bold;
+  }
+  
+  .orders-content {
+    display: none;
+  }
+  
+  .orders-content.active {
+    display: block;
+  }
+  
+  .order-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fff;
+  }
+  
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .order-items {
+    margin-top: 10px;
+  }
+  
+  .order-item {
+    display: flex;
+    margin-bottom: 10px;
+  }
+  
+  .order-item-img {
+    width: 60px;
+    height: 80px;
+    margin-right: 15px;
+    background-color: #f5f5f5;
+  }
+  
+  .order-item-info {
+    flex: 1;
+  }
+  
+  .order-total {
+    text-align: right;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .order-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .empty-orders {
+    text-align: center;
+    padding: 40px 0;
+    color: #666;
+  }
+  
+  .empty-orders i {
+    font-size: 50px;
+    margin-bottom: 15px;
+    color: #ddd;
+  }
+</style>
+</head>
+<body>
+<header class="header">
+<div class="logo">ESTRELLA   BOOKSTORE</div>
+<nav class="navbar">
+<div class="nav-links">
+<a class="nav-link active" data-section="home" href="#">Home</a>
+<a class="nav-link" data-section="browse" href="#">Browse</a>
+<a class="nav-link" data-section="categories" href="#">Categories</a>
+<a class="nav-link" data-section="my-orders" href="#">My Orders</a>
+<a class="nav-link" data-section="my-books" href="#">My Books</a>
+<a class="nav-link" data-section="wishlist" href="#">Wishlist</a>
+</div>
+<div class="nav-icons">
+<a class="nav-icon" href="#" id="account-btn"><i class="fas fa-user"></i></a>
+<a class="nav-icon" href="#" id="cart-btn"><i class="fas fa-shopping-cart"></i><span class="cart-count">0</span></a>
+</div>
+</nav>
+</header>
+<main class="main-content">
+<!-- Home Section -->
+<section class="content-section active" id="home-section">
+<div class="hero">
+<h1>Discover Your Next Favorite Book</h1>
+<p>Explore our vast collection of books across all genres</p>
+<button class="btn btn-primary">Browse Collection</button>
+</div>
+
+<div class="section-container">
+  <div class="section-header">
+    <h2>Categories</h2>
+    <a href="#" class="btn view-all-btn" id="view-all-categories-btn">
+      View All Categories <i class="fas fa-chevron-right"></i>
+    </a>
+  </div>
+  <div class="categories-grid">
+    <div class="category-card" data-category="fiction">
+<div class="category-icon"><i class="fas fa-book-open"></i></div>
+<h3>Fiction</h3>
+</div>
+<div class="category-card" data-category="non-fiction">
+  <div class="category-icon"><i class="fas fa-scroll"></i></div>
+  <h3>Non-Fiction</h3>
+</div>
+<div class="category-card" data-category="fantasy">
+  <div class="category-icon"><i class="fas fa-dragon"></i></div>
+  <h3>Fantasy</h3>
+</div>
+<div class="category-card" data-category="sci-fi">
+  <div class="category-icon"><i class="fas fa-robot"></i></div>
+  <h3>Science Fiction</h3>
+</div>
+<div class="category-card" data-category="mystery">
+  <div class="category-icon"><i class="fas fa-search"></i></div>
+  <h3>Mystery</h3>
+</div>
+  </div>
+</div>
+
+<div class="section-container">
+  <div class="section-header">
+    <h2>Featured Books</h2>
+    <a href="#" class="btn view-all-btn">
+      View All <i class="fas fa-chevron-right"></i>
+    </a>
+  </div>
+  <div class="books-grid" id="featured-books-grid"></div>
+</div>
+
+<div class="section-container">
+  <div class="section-header">
+    <h2>New Releases</h2>
+    <a href="#" class="btn view-all-btn">
+      View All <i class="fas fa-chevron-right"></i>
+    </a>
+  </div>
+  <div class="books-grid" id="new-releases-grid"></div>
+</div>>
+
+</section>
+<!-- Browse Section -->
+<section class="content-section" id="browse-section">
+<h2>Browse All Books</h2>
+<div class="search-filter">
+<input id="search-input" placeholder="Search books..." type="text"/>
+<select id="genre-filter">
+<option value="">All Genres</option>
+<option value="fiction">Fiction</option>
+<option value="non-fiction">Non-Fiction</option>
+<option value="fantasy">Fantasy</option>
+<option value="sci-fi">Science Fiction</option>
+<option value="mystery">Mystery</option>
+<option value="romance">Romance</option>
+<option value="biography">Biography</option>
+</select>
+</div>
+<div class="books-grid" id="browse-books-grid"></div>
+</section>
+<!-- Categories Section -->
+<section class="content-section" id="categories-section">
+<h2>Categories</h2>
+<div class="categories-grid">
+<div class="category-card" data-category="fiction">
+<div class="category-icon"><i class="fas fa-book-open"></i></div>
+<h3>Fiction</h3>
+</div>
+<div class="category-card" data-category="non-fiction">
+<div class="category-icon"><i class="fas fa-scroll"></i></div>
+<h3>Non-Fiction</h3>
+</div>
+<div class="category-card" data-category="fantasy">
+<div class="category-icon"><i class="fas fa-dragon"></i></div>
+<h3>Fantasy</h3>
+</div>
+<div class="category-card" data-category="sci-fi">
+<div class="category-icon"><i class="fas fa-robot"></i></div>
+<h3>Science Fiction</h3>
+</div>
+<div class="category-card" data-category="mystery">
+<div class="category-icon"><i class="fas fa-search"></i></div>
+<h3>Mystery</h3>
+</div>
+<div class="category-card" data-category="romance">
+<div class="category-icon"><i class="fas fa-heart"></i></div>
+<h3>Romance</h3>
+</div>
+<div class="category-card" data-category="biography">
+<div class="category-icon"><i class="fas fa-user"></i></div>
+<h3>Biography</h3>
+</div>
+<div class="category-card" data-category="children">
+<div class="category-icon"><i class="fas fa-child"></i></div>
+<h3>Children's</h3>
+</div>
+</div>
+</section>
+
+<!-- My Orders Section -->
+<!-- My Orders Section -->
+<section class="content-section" id="my-orders-section">
+  <h2>My Orders</h2>
+  
+  <div class="orders-container">
+    <!-- Order History Tabs -->
+    <div class="orders-history-tabs">
+      <div class="orders-tab active" data-tab="all-orders">All Orders</div>
+      <div class="orders-tab" data-tab="to-pay">To Pay</div>
+      <div class="orders-tab" data-tab="to-ship">To Ship</div>
+      <div class="orders-tab" data-tab="to-receive">To Receive</div>
+      <div class="orders-tab" data-tab="completed">Completed</div>
+      <div class="orders-tab" data-tab="cancelled">Cancelled</div>
+      <div class="orders-tab" data-tab="refunded">Refunded</div>
+    </div>
+    
+    <!-- Order History Content -->
+    <div class="orders-history-content">
+      <!-- All Orders -->
+      <div class="orders-content active" id="all-orders-content">
+        <div class="empty-orders">
+          <i class="fas fa-box-open"></i>
+          <p>You haven't placed any orders yet</p>
+          <button class="btn btn-primary browse-books-btn">Browse Books</button>
+        </div>
+      </div>
+      
+      <!-- To Pay -->
+      <div class="orders-content" id="to-pay-content">
+        <div class="empty-orders">
+          <i class="fas fa-credit-card"></i>
+          <p>No orders awaiting payment</p>
+          <button class="btn btn-primary browse-books-btn">Browse Books</button>
+        </div>
+      </div>
+      
+      <!-- To Ship -->
+      <div class="orders-content" id="to-ship-content">
+        <div class="empty-orders">
+          <i class="fas fa-truck"></i>
+          <p>No orders awaiting shipment</p>
+          <button class="btn btn-primary browse-books-btn">Browse Books</button>
+        </div>
+      </div>
+      
+      <!-- To Receive -->
+      <div class="orders-content" id="to-receive-content">
+        <div class="empty-orders">
+          <i class="fas fa-box-open"></i>
+          <p>No orders to receive</p>
+          <button class="btn btn-primary browse-books-btn">Browse Books</button>
+        </div>
+      </div>
+      
+      <!-- Completed -->
+      <div class="orders-content" id="completed-content">
+        <div class="empty-orders">
+          <i class="fas fa-check-circle"></i>
+          <p>No completed orders yet</p>
+          <button class="btn btn-primary browse-books-btn">Browse Books</button>
+        </div>
+      </div>
+  <!-- Cancelled -->
+       <div class="orders-content" id="cancelled-content">
+         <div class="empty-orders">
+           <i class="fas fa-ban"></i>
+    <p>No cancelled orders</p>
+    <button class="btn btn-primary browse-books-btn">Browse Books</button>
+  </div>
+</div>
+
+<!-- Refunded -->
+<div class="orders-content" id="refunded-content">
+  <div class="empty-orders">
+    <i class="fas fa-undo"></i>
+    <p>No refunded orders</p>
+    <button class="btn btn-primary browse-books-btn">Browse Books</button>
+  </div>
+</div>
+</section>
+
+<!-- My Books Section -->
+<section class="content-section" id="my-books-section">
+<h2>My Books</h2>
+<div class="books-grid" id="my-books-grid">
+<div class="empty-state">
+<i class="fas fa-book-open"></i>
+<p>You haven't purchased any books yet</p>
+<button class="btn btn-primary">Browse Books</button>
+</div>
+</div>
+</section>
+<!-- Wishlist Section -->
+<section class="content-section" id="wishlist-section">
+<h2>My Wishlist</h2>
+<div class="books-grid" id="wishlist-grid">
+<div class="empty-state">
+<i class="fas fa-heart"></i>
+<p>Your wishlist is empty</p>
+<button class="btn btn-primary">Browse Books</button>
+</div>
+</div>
+</section>
+<!-- Book Detail Modal -->
+<div class="modal" id="book-detail-modal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<div class="book-detail-container">
+<div class="book-detail-image">
+<img alt="Book cover" id="detail-book-image" src=""/>
+</div>
+<div class="book-detail-info">
+<h2 id="detail-book-title"></h2>
+<p class="book-author" id="detail-book-author"></p>
+<div class="book-rating">
+<div class="stars">
+<i class="fas fa-star"></i>
+<i class="fas fa-star"></i>
+<i class="fas fa-star"></i>
+<i class="fas fa-star"></i>
+<i class="fas fa-star-half-alt"></i>
+</div>
+<span class="rating-text">4.5 (120 reviews)</span>
+</div>
+<p class="book-price" id="detail-book-price"></p>
+<p class="book-description" id="detail-book-description"></p>
+<div class="book-actions">
+<button class="btn btn-primary" id="add-to-cart-detail">Add to Cart</button>
+<button class="btn btn-secondary" id="buy-now-btn">Buy Now</button>
+<button class="btn btn-outline" id="add-to-wishlist-detail">
+<i class="far fa-heart"></i> Wishlist
+                            </button>
+</div>
+<div class="book-details">
+<p><strong>Genre:</strong> <span id="detail-book-genre"></span></p>
+<p><strong>Pages:</strong> <span id="detail-book-pages"></span></p>
+<p><strong>Publisher:</strong> <span id="detail-book-publisher"></span></p>
+<p><strong>Language:</strong> <span id="detail-book-language"></span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Update the account modal section -->
+<div class="modal" id="account-modal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h2>My Account</h2>
+<div class="account-info">
+<div class="account-avatar">
+<img alt="Profile Picture" id="avatar-image" src=""/>
+<input accept="image/*" id="avatar-upload" style="display: none;" type="file"/>
+<button class="btn btn-outline" id="change-avatar">Change Photo</button>
+</div>
+<div class="account-details">
+<p><strong>Name:</strong> <span id="account-name">John Doe</span></p>
+<p><strong>Email:</strong> <span id="account-email">john.doe@example.com</span></p>
+<p><strong>Phone:</strong> <span id="account-phone">+639123456789</span></p>
+<p><strong>Member since:</strong> <span id="account-join-date">January 2023</span></p>
+</div>
+</div>
+<div class="account-actions">
+<button class="btn btn-outline" id="edit-profile-btn">Edit Profile</button>
+
+<a href="login.html" class="btn btn-outline" id="logout-link">Logout</a>
+</div>
+<!-- Edit Profile Form (hidden by default) -->
+<div class="edit-profile-form" id="edit-profile-form">
+<h3>Edit Profile</h3>
+<form id="profile-form">
+<div class="form-group">
+<label for="edit-name">Full Name</label>
+<input id="edit-name" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="edit-phone">Phone Number</label>
+<input id="edit-phone" required="" type="tel"/>
+</div>
+<div class="form-group">
+<label for="edit-email">Email</label>
+<input id="edit-email" required="" type="email"/>
+</div>
+<div class="form-actions">
+<button class="btn btn-outline" id="cancel-edit" type="button">Cancel</button>
+<button class="btn btn-primary" type="submit">Save Changes</button>
+</div>
+</form>
+</div>
+
+  </div>
+</div>
+</div>
+</div>
+<!-- Cart Sidebar -->
+<div class="cart-sidebar" id="cart-sidebar">
+<div class="cart-header">
+<h3>Your Cart</h3>
+<span class="close-cart">×</span>
+</div>
+<div class="cart-items" id="cart-items">
+<div class="empty-cart">
+<i class="fas fa-shopping-cart"></i>
+<p>Your cart is empty</p>
+</div>
+</div>
+<div class="cart-footer">
+<div class="cart-total">
+<p>Total: <span id="cart-total-price">₱0.00</span></p>
+</div>
+<button class="btn btn-primary" id="checkout-btn">Checkout</button>
+</div>
+</div>
+<!-- Checkout Modal -->
+<div class="modal" id="checkout-modal">
+<div class="modal-content">
+<span class="close-modal">×</span>
+<h2>Checkout</h2>
+<form id="checkout-form">
+<div class="form-group">
+<label for="full-name">Full Name</label>
+<input id="full-name" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="email">Email</label>
+<input id="email" required="" type="email"/>
+</div>
+<div class="form-group">
+<label for="phone">Phone Number</label>
+<input id="phone" required="" type="tel"/>
+</div>
+<div class="form-group">
+<label for="street">Street Address</label>
+<input id="street" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="barangay">Barangay</label>
+<input id="barangay" required="" type="text"/>
+</div>
+<div class="form-row">
+<!--<div class="form-group">
+<label for="region">Region</label>
+<select id="region" required="">
+<option value="">Select Region</option>
+</select>
+</div>
+<div class="form-group">
+<label for="province">Province</label>
+<select id="province" required="">
+<option value="">Select Province</option>
+</select>
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label for="city">City/Municipality</label>
+<select id="city" required="">
+<option value="">Select City/Municipality</option>
+</select>
+</div> --> 
+<div class="form-group">
+<label for="zip">ZIP Code</label>
+<input id="zip" required="" type="text"/>
+</div>
+</div>
+<div class="form-group">
+<label for="payment">Payment Method</label>
+<select id="payment" required="">
+<option value="">Select payment method</option>
+<option value="credit">Credit Card</option>
+<option value="paypal">PayPal</option>
+<option value="gcash">GCash</option>
+<option value="bank">Bank Transfer</option>
+<option value="cod">Cash on Delivery</option>
+</select>
+</div>
+<div class="order-summary">
+<h3>Order Summary</h3>
+<div id="checkout-items"></div>
+<div class="order-total">
+<p>Total: <span id="checkout-total">₱0.00</span></p>
+</div>
+</div>
+<button class="btn btn-primary" type="submit">Place Order</button>
+</form>
+</div>
+</div>
+</main>
+<footer class="footer">
+<div class="footer-content">
+<div class="footer-section">
+<h3>Estrella</h3>
+<p>Your favorite online bookstore</p>
+</div>
+<div class="footer-section">
+<h3>Quick Links</h3>
+<ul>
+<li><a href="#">About Us</a></li>
+<li><a href="#">Contact</a></li>
+<li><a href="#">FAQ</a></li>
+<li><a href="#">Shipping Policy</a></li>
+</ul>
+</div>
+<div class="footer-section">
+<h3>Connect With Us</h3>
+<div class="social-icons">
+<a href="#"><i class="fab fa-facebook"></i></a>
+<a href="#"><i class="fab fa-twitter"></i></a>
+<a href="#"><i class="fab fa-instagram"></i></a>
+<a href="#"><i class="fab fa-pinterest"></i></a>
+</div>
+</div>
+</div>
+<div class="footer-bottom">
+<p>© 2023 ESTRELLA Bookstore. All rights reserved.</p>
+</div>
+</footer>
+<script src="/static/js/shared.js"></script>
+<script src="/static/js/main.js"></script>
+<script>
+document.getElementById('view-all-categories-btn').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Hide all sections
+  document.querySelectorAll('.content-section').forEach(section => {
+    section.classList.remove('active');
+  });
+
+  // Remove active class from all navigation links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  // Show categories section and make it active
+  const categoriesSection = document.getElementById('categories-section');
+  categoriesSection.classList.add('active');
+
+  // Set the categories link as active
+  const categoriesLink = document.querySelector('.nav-link[data-section="categories"]');
+  categoriesLink.classList.add('active');
+});
+
+// Redirect the "Browse Collection" button to the Browse section
+document.querySelector('.btn.btn-primary').addEventListener('click', function (e) {
+  e.preventDefault();
+
+  // Hide all sections
+  document.querySelectorAll('.content-section').forEach(section => {
+    section.classList.remove('active');
+  });
+
+  // Remove active class from all navigation links
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.remove('active');
+  });
+
+  // Show the browse section
+  const browseSection = document.getElementById('browse-section');
+  browseSection.classList.add('active');
+
+  // Set the browse link as active
+  const browseLink = document.querySelector('.nav-link[data-section="browse"]');
+  browseLink.classList.add('active');
+});
+
+// Orders tab functionality
+document.querySelectorAll('.orders-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    // Remove active class from all tabs
+    document.querySelectorAll('.orders-tab').forEach(t => {
+      t.classList.remove('active');
+    });
+    
+    // Add active class to clicked tab
+    this.classList.add('active');
+    
+    // Hide all content sections
+    document.querySelectorAll('.orders-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    
+    // Show the corresponding content section
+    const tabId = this.getAttribute('data-tab');
+    document.getElementById(`${tabId}-content`).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
