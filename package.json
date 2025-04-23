@@ -1,10 +1,15 @@
 {
   "name": "book",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/app.ts",
+    "prettier": "bunx prettier --write .",
+    "build": "bun build ./src/app.ts --outdir ./dist --target node",
+    "start": "bun run dist/app.js"
   },
   "dependencies": {
-    "hono": "^4.7.7"
+    "@hono/node-server": "^1.14.1",
+    "hono": "^4.7.7",
+    "prettier": "^3.5.3"
   },
   "devDependencies": {
     "@types/bun": "latest"
