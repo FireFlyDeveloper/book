@@ -91,9 +91,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Login form handling
   const loginForm = document.getElementById("login-form");
+
   if (loginForm) {
     loginForm.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const email = document.getElementById("login-email").value;
       const password = document.getElementById("login-password").value;
       const button = document.getElementById("login-button");
@@ -121,17 +123,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (isValid) {
         button.classList.add("btn-loading");
-        setTimeout(() => {
-          button.classList.remove("btn-loading");
-          feedback.textContent = "Login successful! Redirecting...";
-          feedback.style.display = "block";
-          feedback.style.backgroundColor = "#d4edda";
-          feedback.style.color = "#155724";
-          feedback.style.border = "1px solid #c3e6cb";
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1500);
-        }, 1500);
+
+        fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            button.classList.remove("btn-loading");
+            if (data.success) {
+              feedback.textContent = "Login successful! Redirecting...";
+              feedback.style.display = "block";
+              feedback.style.backgroundColor = "#d4edda";
+              feedback.style.color = "#155724";
+              feedback.style.border = "1px solid #c3e6cb";
+
+              setTimeout(() => {
+                window.location.href = "index.html";
+              }, 1500);
+            } else {
+              feedback.textContent =
+                data.message || "Login failed. Please try again.";
+              feedback.style.display = "block";
+              feedback.style.backgroundColor = "#f8d7da";
+              feedback.style.color = "#721c24";
+              feedback.style.border = "1px solid #f5c6cb";
+            }
+          })
+          .catch((error) => {
+            button.classList.remove("btn-loading");
+            feedback.textContent = "An error occurred. Please try again.";
+            feedback.style.display = "block";
+            feedback.style.backgroundColor = "#f8d7da";
+            feedback.style.color = "#721c24";
+            feedback.style.border = "1px solid #f5c6cb";
+            console.error("Login error:", error);
+          });
       }
     });
   }

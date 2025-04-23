@@ -58,4 +58,16 @@ export default class AuthController {
     }
     return c.json({ message: "User deleted successfully" });
   }
+
+  static async login(c: Context) {
+    const { email, password } = await c.req.json();
+    if (!email || !password) {
+      return c.json({ message: "Email and password are required" }, 400);
+    }
+    const user = await getUserById(email);
+    if (!user || user.password !== password) {
+      return c.json({ message: "Invalid email or password" }, 401);
+    }
+    return c.json({ message: "Login successful", user });
+  }
 }
