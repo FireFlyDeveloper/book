@@ -2,6 +2,7 @@ import { Context, Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { serveHTML } from "./helpers/serverHTML";
 import authRouter from "./routes/auth";
+import booksRouter from "./routes/books";
 import { CookieStore, Session, sessionMiddleware } from "hono-sessions";
 import { SessionDataTypes } from "./model/types";
 import { authMiddleware } from "./middlewares/authMiddleware";
@@ -32,6 +33,7 @@ app.use(
 app.use("/static/*", serveStatic({ root: "./src/" }));
 
 app.route("/api", authRouter);
+app.route("/api", booksRouter);
 app.get("/logout", async (c: Context) => {
   const session = c.get("session");
   session.forget("id");
