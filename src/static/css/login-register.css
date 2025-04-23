@@ -18,24 +18,32 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
   background-color: #f5f3ff;
   background-image: 
     /* Bookshelf background */
-    url('../image/sana-all.png'),
+    url("../image/sana-all.png"),
     /* Star pattern overlay */
-    radial-gradient(circle, rgba(251, 191, 36, var(--star-opacity)) 1px, transparent 1px),
-    radial-gradient(circle, rgba(251, 191, 36, var(--star-opacity)) 1px, transparent 1px);
-  background-size: 
-    cover, /* Bookshelf image */
-    40px 40px, /* Small stars */
-    80px 80px; /* Large stars */
-  background-position: 
-    center, 
-    0 0, 
+      radial-gradient(
+        circle,
+        rgba(251, 191, 36, var(--star-opacity)) 1px,
+        transparent 1px
+      ),
+    radial-gradient(
+      circle,
+      rgba(251, 191, 36, var(--star-opacity)) 1px,
+      transparent 1px
+    );
+  background-size:
+    cover,
+    /* Bookshelf image */ 40px 40px,
+    /* Small stars */ 80px 80px; /* Large stars */
+  background-position:
+    center,
+    0 0,
     40px 40px;
   background-blend-mode: overlay;
   background-attachment: fixed;
@@ -53,8 +61,6 @@ body {
   background: rgba(255, 255, 255, 0.85);
   z-index: -1;
 }*/
-
-
 
 .auth-container {
   display: flex;
@@ -84,11 +90,13 @@ body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, 
-    var(--book-red) 0%, 
-    var(--book-blue) 33%, 
-    var(--book-green) 66%, 
-    var(--star) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--book-red) 0%,
+    var(--book-blue) 33%,
+    var(--book-green) 66%,
+    var(--star) 100%
+  );
 }
 
 .auth-card::after {
@@ -289,7 +297,7 @@ body {
 }
 
 .btn-loading::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 16px;
   height: 16px;
@@ -369,7 +377,7 @@ body {
   background-color: var(--danger);
 }
 
-.strength-medium .strength-segment:nth-child(-n+2) {
+.strength-medium .strength-segment:nth-child(-n + 2) {
   background-color: #ffc107;
 }
 
@@ -406,7 +414,8 @@ body {
   text-align: center;
 }
 
-.divider::before, .divider::after {
+.divider::before,
+.divider::after {
   content: "";
   flex: 1;
   border-bottom: 1px solid var(--light-gray);
@@ -446,11 +455,11 @@ body {
 }
 
 .social-btn.google {
-  color: #DB4437;
+  color: #db4437;
 }
 
 .social-btn.facebook {
-  color: #4267B2;
+  color: #4267b2;
 }
 
 .form-feedback {
@@ -481,22 +490,22 @@ body {
     background-image: none;
     background-color: #f5f7fa;
   }
-  
+
   .auth-container::before {
     background: rgba(255, 255, 255, 0.95);
   }
-  
+
   .auth-card {
     padding: 30px 20px;
     box-shadow: none;
     border: 1px solid var(--light-gray);
   }
-  
+
   .form-row {
     flex-direction: column;
     gap: 0;
   }
-  
+
   .social-buttons {
     flex-direction: column;
   }
@@ -574,4 +583,3 @@ body {
     gap: 6px;
   }
 }
-

@@ -1,0 +1,61 @@
+import { Context } from "hono";
+import {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+} from "../services/authService";
+
+export default class AuthController {
+  static async create(c: Context) {
+    const { name, email, password } = await c.req.json();
+    if (!name || !email || !password) {
+      return c.json({ message: "Name, email, and password are required" }, 400);
+    }
+    const user = await createUser(name, email, password);
+    return c.json(user);
+  }
+
+  static async getAll(c: Context) {
+    const users = await getAllUsers();
+    return c.json(users);
+  }
+
+  static async getById(c: Context) {
+    const { xata_id } = c.req.param();
+    if (!xata_id) {
+      return c.json({ message: "User ID is required" }, 400);
+    }
+    const user = await getUserById(xata_id);
+    if (!user) {
+      return c.json({ message: "User not found" }, 404);
+    }
+    return c.json(user);
+  }
+
+  static async update(c: Context) {
+    const { xata_id } = c.req.param();
+    if (!xata_id) {
+      return c.json({ message: "User ID is required" }, 400);
+    }
+    const { name, email, password } = await c.req.json();
+    const user = await updateUser(xata_id, name, email, password);
+    if (!user) {
+      return c.json({ message: "User not found" }, 404);
+    }
+    return c.json(user);
+  }
+
+  static async delete(c: Context) {
+    const { xata_id } = c.req.param();
+    if (!xata_id) {
+      return c.json({ message: "User ID is required" }, 400);
+    }
+    const user = await deleteUser(xata_id);
+    if (!user) {
+      return c.json({ message: "User not found" }, 404);
+    }
+    return c.json({ message: "User deleted successfully" });
+  }
+}
