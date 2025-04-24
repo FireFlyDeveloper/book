@@ -87,6 +87,9 @@ export default class AuthController {
     session.set("id", user.xata_id);
     session.set("jwt", token);
 
-    return c.redirect(`/dashboard`, 302);
+    return c.json({
+      message: "Login successful",
+      success: true,
+    });
   }
 }

@@ -142,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
               feedback.style.border = "1px solid #c3e6cb";
 
               setTimeout(() => {
-                window.location.href = "index.html";
+                window.location.href = "/home";
               }, 1500);
             } else {
               feedback.textContent =

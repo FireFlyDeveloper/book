@@ -8,7 +8,8 @@ export const checkMiddleware = async (c: Context, next: Next) => {
   if (!jwt) {
     session.forget("id");
     session.forget("jwt");
-    return c.redirect(`/login`, 302);
+    await next();
+    return;
   }
 
   try {
