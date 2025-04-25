@@ -653,7 +653,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
   const allOrdersContent = document.getElementById("all-orders-content");
 
   const now = new Date();
-  const orderId = `#${Date.now()}`;
+  let orderId;
   const orderDate = now.toLocaleDateString();
   const orderTime = now.toLocaleTimeString([], {
     hour: "2-digit",
@@ -667,6 +667,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     address.region,
     address.zip,
   ).then((data) => {
+    orderId = data.address.xata_id;
     createOrders(
       address.payment,
       statusLabel,
