@@ -391,9 +391,11 @@ function addToCart(book) {
   const existingItem = state.cart.find((item) => item.id === book.id);
 
   if (existingItem) {
-    addCartItem(book.id, existingItem.quantity + 1).then(() => {
+    updateCart(existingItem.quantity + 1, book.id).then(() => {
       existingItem.quantity += 1;
       showNotification(`${book.title} quantity increased in cart`, "success");
+      updateCartCount();
+      renderCartItems();
     });
   } else {
     addCartItem(book.id, 1).then(() => {
@@ -402,11 +404,10 @@ function addToCart(book) {
         quantity: 1,
       });
       showNotification(`${book.title} added to cart`, "success");
+      updateCartCount();
+      renderCartItems();
     });
   }
-
-  updateCartCount();
-  renderCartItems();
 }
 
 function removeFromCart(bookId) {
