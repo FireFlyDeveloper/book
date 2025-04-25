@@ -6,6 +6,7 @@ import {
   updateUser,
   deleteUser,
   authenticateUser,
+  updateUserWithouthPassword,
 } from "../services/authService";
 import { generateToken } from "../utils/helpers";
 
@@ -64,6 +65,17 @@ export default class AuthController {
     }
     const { name, email, password } = await c.req.json();
     const user = await updateUser(xata_id, name, email, password);
+    if (!user) {
+      return c.json({ message: "User not found" }, 404);
+    }
+    return c.json(user);
+  }
+
+  static async updateBySession(c: Context) {
+    const session = c.get("session");
+    const userId = session.get("id");
+    const { name, email, phone } = await c.req.json();
+    const user = await updateUserWithouthPassword(userId, name, email, phone);
     if (!user) {
       return c.json({ message: "User not found" }, 404);
     }

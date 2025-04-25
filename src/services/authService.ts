@@ -44,6 +44,23 @@ export const updateUser = async (
   return result.rows[0];
 };
 
+export const updateUserWithouthPassword = async (
+  xata_id: string,
+  name: string,
+  email: string,
+  phone: string,
+) => {
+  const query = `
+    UPDATE users
+    SET name = $1, email = $2, phone = $3
+    WHERE xata_id = $4
+    RETURNING *;
+  `;
+  const values = [name, email, phone, xata_id];
+  const result = await pool.query(query, values);
+  return result.rows[0];
+};
+
 export const deleteUser = async (xata_id: string) => {
   const result = await pool.query(
     "DELETE FROM users WHERE xata_id = $1 RETURNING *;",

@@ -98,6 +98,27 @@ async function fetchUser() {
   }
 }
 
+async function updateUser(name, email, phone) {
+  try {
+    const response = await fetch("/api/update-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, phone }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating user data:", error);
+    return null;
+  }
+}
+
 async function fetchBooks() {
   try {
     const response = await fetch("/api/books");
@@ -796,17 +817,22 @@ function setupEventListeners() {
 
   document.getElementById("profile-form").addEventListener("submit", (e) => {
     e.preventDefault();
+    updateUser(
+      document.getElementById("edit-name").value,
+      (document.getElementById("account-email").textContent = state.user.email),
+      document.getElementById("edit-phone").value,
+    ).then(() => {
+      state.user.name = document.getElementById("edit-name").value;
+      state.user.phone = document.getElementById("edit-phone").value;
+      state.user.email = document.getElementById("edit-email").value;
 
-    state.user.name = document.getElementById("edit-name").value;
-    state.user.phone = document.getElementById("edit-phone").value;
-    state.user.email = document.getElementById("edit-email").value;
+      document.getElementById("account-name").textContent = state.user.name;
+      document.getElementById("account-phone").textContent = state.user.phone;
+      document.getElementById("account-email").textContent = state.user.email;
 
-    document.getElementById("account-name").textContent = state.user.name;
-    document.getElementById("account-phone").textContent = state.user.phone;
-    document.getElementById("account-email").textContent = state.user.email;
-
-    document.getElementById("edit-profile-form").classList.remove("active");
-    showNotification("Profile updated successfully!", "success");
+      document.getElementById("edit-profile-form").classList.remove("active");
+      showNotification("Profile updated successfully!", "success");
+    });
   });
 
   document.getElementById("change-avatar").addEventListener("click", () => {
