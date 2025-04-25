@@ -653,7 +653,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
   const allOrdersContent = document.getElementById("all-orders-content");
 
   const now = new Date();
-  let orderId;
+  const orderId = `#${Date.now()}`;
   const orderDate = now.toLocaleDateString();
   const orderTime = now.toLocaleTimeString([], {
     hour: "2-digit",
@@ -667,7 +667,6 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     address.region,
     address.zip,
   ).then((data) => {
-    orderId = data.address.xata_id;
     createOrders(
       address.payment,
       statusLabel,
@@ -675,7 +674,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
       formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
     ).then((data) => {
       items.forEach((item) => {
-        console.log(item);
+        console.log("");
         addOrderItem(data.order.xata_id, item.id, item.quantity, item.price);
       });
     });
