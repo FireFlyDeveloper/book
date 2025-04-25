@@ -5,22 +5,14 @@ export const createOrder = async (
   address_id: string,
   status: string,
   total: number,
-  delivery_fee: number,
   payment_method: string,
 ) => {
   const query = `
-    INSERT INTO orders (user_id, address_id, status, total, delivery_fee, payment_method)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO orders (user_id, address_id, status, total, payment_method)
+    VALUES ($1, $2, $3, $4, $5)
     RETURNING *;
   `;
-  const values = [
-    user_id,
-    address_id,
-    status,
-    total,
-    delivery_fee,
-    payment_method,
-  ];
+  const values = [user_id, address_id, status, total, payment_method];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

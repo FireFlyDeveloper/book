@@ -16,16 +16,9 @@ export default class OrdersController {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
-    const { address_id, status, total, delivery_fee, payment_method } =
-      await c.req.json();
+    const { address_id, status, total, payment_method } = await c.req.json();
 
-    if (
-      !address_id ||
-      !status ||
-      total == null ||
-      delivery_fee == null ||
-      !payment_method
-    ) {
+    if (!address_id || !status || total == null || !payment_method) {
       return c.json({ message: "Missing required order fields" }, 400);
     }
 
@@ -34,7 +27,6 @@ export default class OrdersController {
       address_id,
       status,
       total,
-      delivery_fee,
       payment_method,
     );
 

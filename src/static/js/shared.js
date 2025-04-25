@@ -13,6 +13,88 @@ let state = {
   },
 };
 
+async function addOrderItem(order_id, book_id, quantity, price) {
+  try {
+    const response = await fetch("/api/create-order-item", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ order_id, book_id, quantity, price }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    return [];
+  }
+}
+
+async function createOrders(payment, status, address_id, total) {
+  try {
+    const response = await fetch("/api/create-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        payment_method: payment,
+        status,
+        address_id,
+        total,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    return [];
+  }
+}
+
+async function createAddress(
+  street,
+  barangay,
+  city_or_municipality,
+  province,
+  region,
+  postal_code,
+) {
+  try {
+    const response = await fetch("/api/create-address", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        street,
+        barangay,
+        city_or_municipality,
+        province,
+        region,
+        postal_code,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    return [];
+  }
+}
+
 async function addCartItem(id, quantity) {
   try {
     const response = await fetch("/api/add-cart-item", {
@@ -577,6 +659,25 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     hour: "2-digit",
     minute: "2-digit",
   });
+  createAddress(
+    address.street,
+    address.barangay,
+    address.city,
+    address.province,
+    address.region,
+    address.zip,
+  ).then((data) => {
+    createOrders(
+      address.payment,
+      statusLabel,
+      data.address.xata_id,
+      formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
+    ).then((data) => {
+      items.forEach((item) => {
+        addOrderItem(data.order.xata_id, item.id, item.quantity, item.price);
+      });
+    });
+  });
   const fullAddress = `${address.street}, ${address.barangay}, ${address.city}, ${address.province}, ${address.region}, ZIP ${address.zip}`;
 
   // Determine status slug (used in data attributes)
@@ -766,14 +867,11 @@ function setupEventListeners() {
       : [...state.cart];
 
     const address = {
-      name: document.getElementById("full-name").value,
-      email: document.getElementById("email").value,
-      phone: document.getElementById("phone").value,
       street: document.getElementById("street").value,
       barangay: document.getElementById("barangay").value,
-      //region: document.getElementById('region').value,
-      //province: document.getElementById('province').value,
-      //city: document.getElementById('city').value,
+      region: document.getElementById("region").value,
+      province: document.getElementById("province").value,
+      city: document.getElementById("city").value,
       zip: document.getElementById("zip").value,
       payment: document.getElementById("payment").value,
     };
