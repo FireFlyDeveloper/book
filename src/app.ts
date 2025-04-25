@@ -10,6 +10,7 @@ import { checkMiddleware } from "./middlewares/checkMiddleware";
 import adminRouter from "./routes/adminRoutes";
 import cartRouter from "./routes/cartRoutes";
 import cartItemRouter from "./routes/cartItemRoutes";
+import addressesRouter from "./routes/addresses";
 
 const app = new Hono<{
   Variables: {
@@ -40,6 +41,7 @@ app.route("/api", booksRouter);
 app.route("/api", adminRouter);
 app.route("/api", cartRouter);
 app.route("/api", cartItemRouter);
+app.route("/api", addressesRouter);
 app.get("/logout", async (c: Context) => {
   const session = c.get("session");
   session.forget("id");
