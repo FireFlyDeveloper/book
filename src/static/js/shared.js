@@ -20,7 +20,7 @@ async function addCartItem(id, quantity) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ book_id: id, quantity })
+      body: JSON.stringify({ book_id: id, quantity }),
     });
 
     if (!response.ok) {
@@ -34,14 +34,14 @@ async function addCartItem(id, quantity) {
   }
 }
 
-async function updateCart(data) {
+async function updateCart(quantity, book_id) {
   try {
-    const response = await fetch("/api/update-cart", {
+    const response = await fetch("/api/update-cart-item", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ quantity, book_id }),
     });
 
     if (!response.ok) {
@@ -231,21 +231,23 @@ function renderCartItems() {
   // Add event listeners to quantity buttons
   document.querySelectorAll(".increase-quantity").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+      console.log("Increase quantity");
+      const itemId = e.target.closest(".cart-item").dataset.id;
+      console.log("Item ID:", itemId);
       increaseQuantity(itemId);
     });
   });
 
   document.querySelectorAll(".decrease-quantity").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+      const itemId = e.target.closest(".cart-item").dataset.id;
       decreaseQuantity(itemId);
     });
   });
 
   document.querySelectorAll(".cart-item-remove").forEach((btn) => {
     btn.addEventListener("click", (e) => {
-      const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+      const itemId = e.target.closest(".cart-item").dataset.id;
       removeFromCart(itemId);
     });
   });
@@ -337,7 +339,7 @@ function renderBooks(books, containerId) {
   document.querySelectorAll(`#${containerId} .add-to-cart`).forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const bookId = parseInt(e.target.closest(".book-card").dataset.id);
+      const bookId = e.target.closest(".book-card").dataset.id;
       const book = books.find((b) => b.id === bookId);
       if (book) {
         addToCart(book);
@@ -349,7 +351,7 @@ function renderBooks(books, containerId) {
   document.querySelectorAll(`#${containerId} .wishlist-btn`).forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const bookId = parseInt(e.target.closest(".book-card").dataset.id);
+      const bookId = e.target.closest(".book-card").dataset.id;
       const book = books.find((b) => b.id === bookId);
       if (book) {
         toggleWishlist(book);
@@ -404,11 +406,12 @@ function removeFromCart(bookId) {
 function increaseQuantity(bookId) {
   const item = state.cart.find((item) => item.id === bookId);
   if (item) {
-    
-    item.quantity += 1;
-    updateCartCount();
-    renderCartItems();
-    showNotification(`${item.title} quantity increased`, "success");
+    updateCart(item.quantity + 1, item.id).then(() => {
+      item.quantity += 1;
+      updateCartCount();
+      renderCartItems();
+      showNotification(`${item.title} quantity increased`, "success");
+    });
   }
 }
 
@@ -416,10 +419,12 @@ function decreaseQuantity(bookId) {
   const item = state.cart.find((item) => item.id === bookId);
   if (item) {
     if (item.quantity > 1) {
-      item.quantity -= 1;
-      updateCartCount();
-      renderCartItems();
-      showNotification(`${item.title} quantity decreased`, "warning");
+      updateCart(item.quantity - 1, item.id).then(() => {
+        item.quantity -= 1;
+        updateCartCount();
+        renderCartItems();
+        showNotification(`${item.title} quantity decreased`, "warning");
+      });
     } else {
       removeFromCart(bookId);
     }

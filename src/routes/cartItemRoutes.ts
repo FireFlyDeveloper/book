@@ -22,8 +22,8 @@ cartItemRouter.get(
   "/get-cart-items-by-cart",
   CartItemController.getByIdSession,
 );
-cartItemRouter.put(
-  "/update-cart-item/:xata_id",
+cartItemRouter.post(
+  "/update-cart-item",
   authMiddleware,
   CartItemController.update,
 );

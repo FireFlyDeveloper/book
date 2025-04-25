@@ -63,9 +63,12 @@ export default class CartItemController {
   }
 
   static async update(c: Context) {
-    const { xata_id } = c.req.param();
-    const { cart_id, book_id, quantity } = await c.req.json();
-    const updated = await updateCartItem(xata_id, cart_id, book_id, quantity);
+    const session = c.get("session");
+    const user_id = session.get("id");
+    const cart = await getCartsByUserId(user_id);
+    let cart_id = cart[0]?.xata_id;
+    const { quantity, book_id } = await c.req.json();
+    const updated = await updateCartItem(cart_id, book_id, quantity);
     return c.json({ message: "Cart item updated", updated });
   }
 

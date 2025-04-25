@@ -40,18 +40,17 @@ export const getItemsByCartId = async (cart_id: string) => {
 };
 
 export const updateCartItem = async (
-  xata_id: string,
   cart_id: string,
   book_id: string,
   quantity: number,
 ) => {
   const query = `
     UPDATE cart_items
-    SET cart_id = $1, book_id = $2, quantity = $3
-    WHERE xata_id = $4
+    SET quantity = $3
+    WHERE cart_id = $1 AND book_id = $2
     RETURNING *;
   `;
-  const values = [cart_id, book_id, quantity, xata_id];
+  const values = [cart_id, book_id, quantity];
   const result = await pool.query(query, values);
   return result.rows[0];
 };
