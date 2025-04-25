@@ -674,6 +674,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
       formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
     ).then((data) => {
       items.forEach((item) => {
+        console.log(item);
         addOrderItem(data.order.xata_id, item.id, item.quantity, item.price);
       });
     });
