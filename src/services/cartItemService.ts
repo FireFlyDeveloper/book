@@ -30,7 +30,10 @@ export const getCartItemById = async (xata_id: string) => {
 
 export const getItemsByCartId = async (cart_id: string) => {
   const result = await pool.query(
-    "SELECT * FROM cart_items WHERE cart_id = $1;",
+    `SELECT books.*, cart_items.quantity
+     FROM cart_items
+     JOIN books ON cart_items.book_id = books.xata_id
+     WHERE cart_items.cart_id = $1;`,
     [cart_id],
   );
   return result.rows;

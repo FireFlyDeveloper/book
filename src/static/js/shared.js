@@ -13,6 +13,61 @@ let state = {
   },
 };
 
+async function addCartItem(id, quantity) {
+  try {
+    const response = await fetch("/api/add-cart-item", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ book_id: id, quantity })
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    return [];
+  }
+}
+
+async function updateCart(data) {
+  try {
+    const response = await fetch("/api/update-cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating cart:", error);
+    return [];
+  }
+}
+
+async function fetchCart() {
+  try {
+    const response = await fetch("/api/get-cart-items-by-cart");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching cart data:", error);
+    return [];
+  }
+}
+
 async function fetchUser() {
   try {
     const response = await fetch("/api/get-user");
@@ -317,14 +372,18 @@ function addToCart(book) {
   const existingItem = state.cart.find((item) => item.id === book.id);
 
   if (existingItem) {
-    existingItem.quantity += 1;
-    showNotification(`${book.title} quantity increased in cart`, "success");
-  } else {
-    state.cart.push({
-      ...book,
-      quantity: 1,
+    addCartItem(book.id, existingItem.quantity + 1).then(() => {
+      existingItem.quantity += 1;
+      showNotification(`${book.title} quantity increased in cart`, "success");
     });
-    showNotification(`${book.title} added to cart`, "success");
+  } else {
+    addCartItem(book.id, 1).then(() => {
+      state.cart.push({
+        ...book,
+        quantity: 1,
+      });
+      showNotification(`${book.title} added to cart`, "success");
+    });
   }
 
   updateCartCount();
@@ -345,6 +404,7 @@ function removeFromCart(bookId) {
 function increaseQuantity(bookId) {
   const item = state.cart.find((item) => item.id === bookId);
   if (item) {
+    
     item.quantity += 1;
     updateCartCount();
     renderCartItems();
@@ -831,9 +891,13 @@ function init() {
     ).toLocaleDateString();
     fetchBooks().then((data) => {
       books = data;
-      setupEventListeners();
-      navigateTo("home");
-      renderCartItems();
+      fetchCart().then((cart) => {
+        state.cart = cart;
+        updateCartCount();
+        setupEventListeners();
+        navigateTo("home");
+        renderCartItems();
+      });
     });
   });
 

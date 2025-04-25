@@ -7,17 +7,21 @@ import {
   updateCartItem,
   deleteCartItem,
 } from "../services/cartItemService";
+import { createCart, getCartsByUserId } from "../services/cartService";
 
 export default class CartItemController {
   static async create(c: Context) {
-    const { cart_id, book_id, quantity } = await c.req.json();
-    if (!cart_id || !book_id || typeof quantity !== "number") {
+    const { book_id, quantity } = await c.req.json();
+    if (!book_id || typeof quantity !== "number") {
       return c.json(
         { message: "cart_id, book_id, and quantity are required" },
         400,
       );
     }
-    const item = await addCartItem(cart_id, book_id, quantity);
+    const session = c.get("session");
+    const user_id = session.get("id");
+    const cart_id = await getCartsByUserId(user_id);
+    const item = await addCartItem(cart_id[0]?.xata_id, book_id, quantity);
     return c.json({ message: "Cart item added", item });
   }
 
@@ -39,6 +43,23 @@ export default class CartItemController {
     const { cart_id } = c.req.param();
     const items = await getItemsByCartId(cart_id);
     return c.json(items);
+  }
+
+  static async getByIdSession(c: Context) {
+    const session = c.get("session");
+    const user_id = session.get("id");
+    const cart = await getCartsByUserId(user_id);
+    let cart_id = cart[0]?.xata_id;
+    if (!cart_id) {
+      const response = await createCart(user_id);
+      cart_id = response.xata_id;
+    }
+    const items = await getItemsByCartId(cart_id);
+    const data = items.map((item) => {
+      item.id = item.xata_id;
+      return item;
+    });
+    return c.json(data);
   }
 
   static async update(c: Context) {

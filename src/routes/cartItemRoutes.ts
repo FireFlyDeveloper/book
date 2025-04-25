@@ -18,6 +18,10 @@ cartItemRouter.get(
   "/get-cart-items-by-cart/:cart_id",
   CartItemController.getByCart,
 );
+cartItemRouter.get(
+  "/get-cart-items-by-cart",
+  CartItemController.getByIdSession,
+);
 cartItemRouter.put(
   "/update-cart-item/:xata_id",
   authMiddleware,
