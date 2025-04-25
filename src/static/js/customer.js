@@ -1,6 +1,28 @@
 // Sample customer data
 let customers;
 
+async function deleteCustomer(id) {
+  try {
+    const response = await fetch(`/api/delete-user/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const deletedCustomer = await response.json();
+    console.log("Customer deleted:", deletedCustomer);
+    // Refresh customer data after deletion
+    customers = await fetchCustomers();
+    renderCustomers();
+    alert("Customer deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+  }
+}
+
 async function updateCustomer(id, name, email) {
   try {
     const response = await fetch(`/api/update-user/${id}`, {
@@ -14,6 +36,9 @@ async function updateCustomer(id, name, email) {
       throw new Error("Network response was not ok");
     }
     const updatedCustomer = await response.json();
+    // Refresh customer data after update
+    customers = await fetchCustomers();
+    renderCustomers();
   } catch (error) {
     console.error("Error updating customer:", error);
   }
@@ -29,6 +54,7 @@ async function fetchCustomers() {
     return data;
   } catch (error) {
     console.error("Error fetching customers:", error);
+    return []; // Return empty array if fetch fails
   }
 }
 
@@ -50,12 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Render customers table
 function renderCustomers(filter = "all") {
   customersTableBody.innerHTML = "";
-  const filteredCustomers =
-    filter === "all"
-      ? customers
-      : customers.filter((c) =>
-          filter === "premium" ? c.type === "premium" : c.status === filter,
-        );
+  const filteredCustomers = customers;
 
   filteredCustomers.forEach((customer) => {
     const row = document.createElement("tr");
@@ -80,11 +101,6 @@ function renderCustomers(filter = "all") {
 
 // Event listeners
 function setupEventListeners() {
-  // Filter customers
-  customerFilter.addEventListener("change", (e) => {
-    renderCustomers(e.target.value);
-  });
-
   // Close modal
   document.querySelector(".close-modal").addEventListener("click", () => {
     customerModal.style.display = "none";
@@ -96,13 +112,12 @@ function setupEventListeners() {
   });
 
   // Form submission
-  customerForm.addEventListener("submit", (e) => {
+  customerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = document.getElementById("customer-id").value;
     const name = document.getElementById("customer-name").value;
     const email = document.getElementById("customer-email").value;
-    updateCustomer(id, name, email);
-    // Save customer logic would go here
+    await updateCustomer(id, name, email);
     alert("Customer saved successfully!");
     customerModal.style.display = "none";
   });
@@ -131,11 +146,4 @@ function editCustomer(id) {
     document.getElementById("customer-phone").value = customer.phone;
     customerModal.style.display = "block";
   }
-}
-
-function deleteCustomer(id) {
-  console.log(`Deleting customer ${id}`);
-  // In a real app, you would make an API call here
-  alert("Customer deleted successfully!");
-  renderCustomers(customerFilter.value);
 }
