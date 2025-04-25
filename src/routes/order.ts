@@ -12,6 +12,6 @@ orderRouter.delete(
   authMiddleware,
   OrdersController.delete,
 );
-orderRouter.get("/list-orders", authMiddleware, OrdersController.getAll);
+orderRouter.get("/list-orders", OrdersController.getAll);
 
 export default orderRouter;

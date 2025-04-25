@@ -18,9 +18,47 @@ export const createOrder = async (
 };
 
 export const getAllOrders = async () => {
-  const result = await pool.query("SELECT * FROM orders;");
+  const result = await pool.query(`
+    SELECT 
+      orders.xata_id AS order_id,
+      orders.xata_createdat,
+      orders.xata_updatedat,
+      orders.status,
+      orders.total,
+      orders.delivery_fee,
+      orders.payment_method,
+
+      -- User details
+      users.xata_id AS user_id,
+      users.name AS user_name,
+      users.email AS user_email,
+
+      -- Address details
+      addresses.xata_id AS address_id,
+      addresses.street,
+      addresses.city_or_municipality,
+      addresses.postal_code,
+
+      -- Order item details
+      order_items.book_id,
+      order_items.quantity,
+      order_items.price,
+
+      -- Book details
+      books.title AS book_title,
+      books.author AS book_author,
+      books.image
+
+    FROM orders
+    JOIN users ON orders.user_id = users.xata_id
+    JOIN addresses ON orders.address_id = addresses.xata_id
+    JOIN order_items ON orders.xata_id = order_items.order_id
+    JOIN books ON order_items.book_id = books.xata_id;
+  `);
+
   return result.rows;
 };
+
 
 export const getOrderById = async (order_id: string) => {
   const result = await pool.query("SELECT * FROM orders WHERE id = $1;", [

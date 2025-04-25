@@ -1,129 +1,161 @@
-const orders = [
-  {
-    id: "ORD-2023-001",
-    date: "May 15, 2023",
-    time: "10:30 AM",
-    customer: "John Doe",
-    email: "john@example.com",
-    address: "123 Main St, Brgy. Central, Quezon City, NCR, ZIP 1100",
-    status: "to-pay",
-    items: [
-      { name: "The Great Gatsby", quantity: 1, price: 12.99 },
-      { name: "To Kill a Mockingbird", quantity: 2, price: 10.99 },
-    ],
-  },
-  {
-    id: "ORD-2023-004",
-    date: "May 14, 2023",
-    time: "9:00 AM",
-    customer: "Sarah Williams",
-    email: "sarah@example.com",
-    address: "321 Pine St, Brgy. North, Taguig City, NCR, ZIP 1630",
-    status: "completed",
-    items: [{ name: "The Catcher in the Rye", quantity: 1, price: 10.99 }],
-  },
-];
-
 const ordersContainer = document.getElementById("orders-container");
 const tabButtons = document.querySelectorAll(".tab-btn");
+let allOrders = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-  renderOrders("to-pay");
+  fetchOrders();
   setupEventListeners();
 });
+
+async function fetchOrders() {
+  try {
+    const response = await fetch(`/api/list-orders`);
+    if (!response.ok) throw new Error("Failed to fetch orders");
+
+    allOrders = await response.json();
+    renderOrders("to-pay");
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    ordersContainer.innerHTML = "<p class='error-message'>Error loading orders. Please try again.</p>";
+  }
+}
 
 function renderOrders(status) {
   ordersContainer.innerHTML = "";
 
-  const filteredOrders =
-    status === "all"
-      ? orders
-      : orders.filter((order) => order.status === status);
+  const statusMap = {
+    "to-pay": "To Pay",
+    "to-ship": "To Ship",
+    "to-deliver": "To Deliver",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "refunded": "Refunded"
+  };
 
-  if (filteredOrders.length === 0) {
-    ordersContainer.innerHTML = "<p>No orders found</p>";
+  const filtered = status === "all"
+    ? allOrders
+    : allOrders.filter(o => o.status === statusMap[status]);
+
+  if (filtered.length === 0) {
+    ordersContainer.innerHTML = `<p class='no-orders'>No ${statusMap[status] || status} orders found</p>`;
     return;
   }
 
-  filteredOrders.forEach((order) => {
-    const orderCard = createOrderCard(order);
-    ordersContainer.appendChild(orderCard);
+  // Group by order_id
+  const grouped = {};
+  filtered.forEach(order => {
+    if (!grouped[order.order_id]) {
+      grouped[order.order_id] = {
+        ...order,
+        items: []
+      };
+    }
+    grouped[order.order_id].items.push({
+      book_id: order.book_id,
+      quantity: order.quantity,
+      price: order.price,
+      book_title: order.book_title,
+      book_author: order.book_author,
+      image: order.image
+    });
+  });
+
+  Object.values(grouped).forEach(order => {
+    const card = createOrderCard(order);
+    ordersContainer.appendChild(card);
   });
 }
 
 function createOrderCard(order) {
-  const total = order.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-
   const card = document.createElement("div");
   card.className = "order-card";
-  card.dataset.orderId = order.id;
+  card.dataset.orderId = order.order_id;
 
-  let statusBadge = `<span class="status-badge status-${order.status}">${order.status.replace("-", " ")}</span>`;
-  let actionButton = "";
-  let cancelButton = "";
+  const statusClass = order.status.toLowerCase().replace(/\s+/g, '-');
 
+  const orderDate = new Date(order.xata_createdat);
+  const formattedDate = orderDate.toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+
+  const addressParts = [
+    order.street,
+    order.barangay,
+    order.city_or_municipality,
+    order.province,
+    order.region,
+    order.postal_code
+  ].filter(Boolean).join(', ');
+
+  let actionButton = "", cancelButton = "";
   switch (order.status) {
-    case "to-pay":
-      actionButton =
-        '<button class="btn btn-primary mark-next">Mark as Paid</button>';
-      cancelButton =
-        '<button class="btn btn-danger cancel-order">Cancel</button>';
+    case "To Pay":
+      actionButton = '<button class="btn btn-primary mark-next">Mark as Paid</button>';
+      cancelButton = '<button class="btn btn-danger cancel-order">Cancel</button>';
       break;
-    case "to-ship":
-      actionButton =
-        '<button class="btn btn-success mark-next">Mark as Shipped</button>';
+    case "To Ship":
+      actionButton = '<button class="btn btn-success mark-next">Mark as Shipped</button>';
       break;
-    case "to-deliver":
-      actionButton =
-        '<button class="btn btn-warning mark-next">Mark as Delivered</button>';
+    case "To Deliver":
+      actionButton = '<button class="btn btn-warning mark-next">Mark as Delivered</button>';
       break;
-    case "completed":
-      actionButton =
-        '<button class="btn btn-danger refund-order">Refund</button>';
+    case "Completed":
+      actionButton = '<button class="btn btn-danger refund-order">Refund</button>';
       break;
   }
 
-  const itemsHTML = order.items
-    .map(
-      (item) => `
-        <div class="item">
-            <span class="item-name">${item.name}</span>
-            <span class="item-qty">x${item.quantity}</span>
-            <span class="item-price">₱${(item.price * item.quantity).toFixed(2)}</span>
-        </div>
-    `,
-    )
-    .join("");
+  const statusBadge = `<span class="status-badge status-${statusClass}">${order.status}</span>`;
+
+  const itemsHTML = order.items.map(item => `
+    <div class="order-item">
+      <img src="${item.image}" alt="${item.book_title}" class="item-image" style="width: 100px; height: auto;" />
+      <div class="item-details">
+        <div class="item-title">${item.book_title}</div>
+        <div class="item-author">by ${item.book_author}</div>
+        <div class="item-qty-price">Qty: ${item.quantity} | ₱${item.price}</div>
+      </div>
+    </div>
+  `).join('');
 
   card.innerHTML = `
-        <div class="order-header">
-            <span class="order-id">#${order.id}</span>
-            <span class="order-date">${order.date} at ${order.time}</span>
+    <div class="order-header">
+      <span class="order-id">Order #${order.order_id.substring(0, 8)}</span>
+      <span class="order-date">${formattedDate}</span>
+    </div>
+    <div class="order-customer">
+      <div class="customer-info">
+        <i class="fas fa-user"></i>
+        <div>
+          <div class="customer-name">${order.user_name}</div>
+          <div class="customer-email">${order.user_email}</div>
         </div>
-        <div class="order-customer">
-            <div class="customer-name">${order.customer}</div>
-            <div class="customer-email">${order.email}</div>
-            <div class="customer-address">${order.address}</div>
-        </div>
-        <div class="order-items">
-            ${itemsHTML}
-        </div>
-        <div class="order-total">
-            <span>Total</span>
-            <span>₱${total.toFixed(2)}</span>
-        </div>
-        <div class="order-actions">
-            ${statusBadge}
-            <div>
-                <button class="btn btn-outline">View</button>
-                ${actionButton}
-                ${cancelButton}
-            </div>
-        </div>
-    `;
+      </div>
+      <div class="customer-address">
+        <i class="fas fa-map-marker-alt"></i>
+        <div>${addressParts}</div>
+      </div>
+    </div>
+    <div class="order-items">${itemsHTML}</div>
+    <div class="order-details">
+      <div class="payment-method">
+        <span>Payment Method:</span>
+        <span class="method">${order.payment_method.toUpperCase()}</span>
+      </div>
+      <div class="order-total">
+        <span>Total Amount:</span>
+        <span class="amount">${order.total}</span>
+      </div>
+    </div>
+    <div class="order-actions">
+      ${statusBadge}
+      <div class="action-buttons">
+        <button class="btn btn-outline view-order">View Details</button>
+        ${actionButton}
+        ${cancelButton}
+      </div>
+    </div>
+  `;
 
   return card;
 }
@@ -140,41 +172,26 @@ function setupEventListeners() {
   document.addEventListener("click", (e) => {
     const card = e.target.closest(".order-card");
     if (!card) return;
-
     const orderId = card.dataset.orderId;
-    const order = orders.find((o) => o.id === orderId);
 
     if (e.target.classList.contains("mark-next")) {
-      switch (order.status) {
-        case "to-pay":
-          order.status = "to-ship";
-          break;
-        case "to-ship":
-          order.status = "to-deliver";
-          break;
-        case "to-deliver":
-          order.status = "completed";
-          break;
-      }
-      renderOrders(document.querySelector(".tab-btn.active").dataset.tab);
+      console.log(`Marking order ${orderId} as next status`);
     }
 
     if (e.target.classList.contains("cancel-order")) {
       if (confirm("Are you sure you want to cancel this order?")) {
-        order.status = "cancelled";
-        renderOrders(document.querySelector(".tab-btn.active").dataset.tab);
+        console.log(`Canceling order ${orderId}`);
       }
     }
 
     if (e.target.classList.contains("refund-order")) {
-      if (confirm("Process refund for this order?")) {
-        order.status = "refunded";
-        renderOrders(document.querySelector(".tab-btn.active").dataset.tab);
+      if (confirm("Are you sure you want to refund this order?")) {
+        console.log(`Refunding order ${orderId}`);
       }
     }
 
-    if (e.target.classList.contains("btn-outline")) {
-      alert(`Viewing order ${orderId}`);
+    if (e.target.classList.contains("view-order")) {
+      console.log(`Viewing details for order ${orderId}`);
     }
   });
 }
