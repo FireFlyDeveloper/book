@@ -16,7 +16,8 @@ async function fetchOrders() {
     renderOrders("to-pay");
   } catch (error) {
     console.error("Error fetching orders:", error);
-    ordersContainer.innerHTML = "<p class='error-message'>Error loading orders. Please try again.</p>";
+    ordersContainer.innerHTML =
+      "<p class='error-message'>Error loading orders. Please try again.</p>";
   }
 }
 
@@ -27,14 +28,15 @@ function renderOrders(status) {
     "to-pay": "To Pay",
     "to-ship": "To Ship",
     "to-deliver": "To Deliver",
-    "completed": "Completed",
-    "cancelled": "Cancelled",
-    "refunded": "Refunded"
+    completed: "Completed",
+    cancelled: "Cancelled",
+    refunded: "Refunded",
   };
 
-  const filtered = status === "all"
-    ? allOrders
-    : allOrders.filter(o => o.status === statusMap[status]);
+  const filtered =
+    status === "all"
+      ? allOrders
+      : allOrders.filter((o) => o.status === statusMap[status]);
 
   if (filtered.length === 0) {
     ordersContainer.innerHTML = `<p class='no-orders'>No ${statusMap[status] || status} orders found</p>`;
@@ -43,11 +45,11 @@ function renderOrders(status) {
 
   // Group by order_id
   const grouped = {};
-  filtered.forEach(order => {
+  filtered.forEach((order) => {
     if (!grouped[order.order_id]) {
       grouped[order.order_id] = {
         ...order,
-        items: []
+        items: [],
       };
     }
     grouped[order.order_id].items.push({
@@ -56,11 +58,11 @@ function renderOrders(status) {
       price: order.price,
       book_title: order.book_title,
       book_author: order.book_author,
-      image: order.image
+      image: order.image,
     });
   });
 
-  Object.values(grouped).forEach(order => {
+  Object.values(grouped).forEach((order) => {
     const card = createOrderCard(order);
     ordersContainer.appendChild(card);
   });
@@ -71,12 +73,15 @@ function createOrderCard(order) {
   card.className = "order-card";
   card.dataset.orderId = order.order_id;
 
-  const statusClass = order.status.toLowerCase().replace(/\s+/g, '-');
+  const statusClass = order.status.toLowerCase().replace(/\s+/g, "-");
 
   const orderDate = new Date(order.xata_createdat);
-  const formattedDate = orderDate.toLocaleDateString('en-US', {
-    year: 'numeric', month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit'
+  const formattedDate = orderDate.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const addressParts = [
@@ -85,29 +90,39 @@ function createOrderCard(order) {
     order.city_or_municipality,
     order.province,
     order.region,
-    order.postal_code
-  ].filter(Boolean).join(', ');
+    order.postal_code,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
-  let actionButton = "", cancelButton = "";
+  let actionButton = "",
+    cancelButton = "";
   switch (order.status) {
     case "To Pay":
-      actionButton = '<button class="btn btn-primary mark-next">Mark as Paid</button>';
-      cancelButton = '<button class="btn btn-danger cancel-order">Cancel</button>';
+      actionButton =
+        '<button class="btn btn-primary mark-next">Mark as Paid</button>';
+      cancelButton =
+        '<button class="btn btn-danger cancel-order">Cancel</button>';
       break;
     case "To Ship":
-      actionButton = '<button class="btn btn-success mark-next">Mark as Shipped</button>';
+      actionButton =
+        '<button class="btn btn-success mark-next">Mark as Shipped</button>';
       break;
     case "To Deliver":
-      actionButton = '<button class="btn btn-warning mark-next">Mark as Delivered</button>';
+      actionButton =
+        '<button class="btn btn-warning mark-next">Mark as Delivered</button>';
       break;
     case "Completed":
-      actionButton = '<button class="btn btn-danger refund-order">Refund</button>';
+      actionButton =
+        '<button class="btn btn-danger refund-order">Refund</button>';
       break;
   }
 
   const statusBadge = `<span class="status-badge status-${statusClass}">${order.status}</span>`;
 
-  const itemsHTML = order.items.map(item => `
+  const itemsHTML = order.items
+    .map(
+      (item) => `
     <div class="order-item">
       <img src="${item.image}" alt="${item.book_title}" class="item-image" style="width: 100px; height: auto;" />
       <div class="item-details">
@@ -116,7 +131,9 @@ function createOrderCard(order) {
         <div class="item-qty-price">Qty: ${item.quantity} | ₱${item.price}</div>
       </div>
     </div>
-  `).join('');
+  `,
+    )
+    .join("");
 
   card.innerHTML = `
     <div class="order-header">

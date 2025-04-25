@@ -6,6 +6,11 @@ const orderRouter = new Hono();
 
 orderRouter.post("/create-order", authMiddleware, OrdersController.create);
 orderRouter.get("/get-order/:id", authMiddleware, OrdersController.getById);
+orderRouter.get(
+  "/get-order-user",
+  authMiddleware,
+  OrdersController.getByUserId,
+);
 orderRouter.put("/update-order/:id", authMiddleware, OrdersController.update);
 orderRouter.delete(
   "/delete-order/:id",

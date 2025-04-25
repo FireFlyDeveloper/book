@@ -5,6 +5,7 @@ import {
   getOrderById,
   updateOrder,
   deleteOrder,
+  getAllOrdersByUserId,
 } from "../services/ordersService";
 
 export default class OrdersController {
@@ -50,6 +51,18 @@ export default class OrdersController {
     }
 
     return c.json(order);
+  }
+
+  static async getByUserId(c: Context) {
+    const session = c.get("session");
+    const user_id = session.get("id");
+
+    if (!user_id) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+
+    const orders = await getAllOrdersByUserId(user_id);
+    return c.json(orders);
   }
 
   static async update(c: Context) {

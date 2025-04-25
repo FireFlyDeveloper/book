@@ -150,6 +150,19 @@ async function fetchCart() {
   }
 }
 
+async function fetchOrders() {
+  try {
+    const response = await fetch("/api/get-order-user");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return [];
+  }
+}
+
 async function removeCartItem(id) {
   try {
     const response = await fetch(`/api/delete-cart-item/${id}`, {
@@ -240,6 +253,12 @@ const elements = {
   checkoutForm: document.getElementById("checkout-form"),
   checkoutItems: document.getElementById("checkout-items"),
   checkoutTotal: document.getElementById("checkout-total"),
+  toPayContent: document.getElementById("to-pay-content"),
+  toReceiveContent: document.getElementById("to-receive-content"),
+  completedContent: document.getElementById("completed-content"),
+  cancelledContent: document.getElementById("cancelled-content"),
+  refundedContent: document.getElementById("refunded-content"),
+  allOrdersContent: document.getElementById("all-orders-content"),
 };
 
 // Notification functions
@@ -577,6 +596,165 @@ function toggleWishlist(book) {
   }
 }
 
+// Order functions
+function processOrders(orders) {
+  // Group items by order_id
+  const groupedOrders = {};
+
+  orders.forEach((order) => {
+    if (!groupedOrders[order.order_id]) {
+      groupedOrders[order.order_id] = {
+        order_id: order.order_id,
+        xata_createdat: order.xata_createdat,
+        status: order.status,
+        total: order.total,
+        payment_method: order.payment_method,
+        address: {
+          street: order.street,
+          city_or_municipality: order.city_or_municipality,
+          postal_code: order.postal_code,
+        },
+        items: [],
+      };
+    }
+
+    groupedOrders[order.order_id].items.push({
+      book_id: order.book_id,
+      quantity: order.quantity,
+      price: order.price,
+      title: order.book_title,
+      author: order.book_author,
+      image: order.image,
+    });
+  });
+
+  return Object.values(groupedOrders);
+}
+
+function renderOrders(orders) {
+  // Clear all order sections first
+  elements.toPayContent.innerHTML = "";
+  elements.toReceiveContent.innerHTML = "";
+  elements.completedContent.innerHTML = "";
+  elements.cancelledContent.innerHTML = "";
+  elements.refundedContent.innerHTML = "";
+  elements.allOrdersContent.innerHTML = "";
+
+  // Add empty state if no orders
+  const emptyHTML = `
+    <div class="empty-orders">
+      <i class="fas fa-box-open"></i>
+      <p>No orders found</p>
+    </div>
+  `;
+
+  if (orders.length === 0) {
+    elements.allOrdersContent.innerHTML = emptyHTML;
+    return;
+  }
+
+  // Process and render each order
+  orders.forEach((order) => {
+    const orderDate = new Date(order.xata_createdat);
+    const formattedDate = orderDate.toLocaleDateString();
+    const formattedTime = orderDate.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const addressHTML = `
+      <div class="order-address">
+        <strong>Shipping to:</strong> 
+        ${order.address.street}, ${order.address.city_or_municipality}, ${order.address.postal_code}
+      </div>
+    `;
+
+    const itemsHTML = order.items
+      .map(
+        (item) => `
+      <div class="order-item">
+        <div class="order-item-img">
+          <img src="${item.image}" alt="${item.title}" />
+        </div>
+        <div class="order-item-info">
+          <p class="order-item-title">${item.title}</p>
+          <p class="order-item-author">${item.author}</p>
+          <p class="order-item-price">${formatPrice(item.price)} x ${item.quantity}</p>
+        </div>
+      </div>
+    `,
+      )
+      .join("");
+
+    const statusSlug = order.status.toLowerCase().replace(" ", "-");
+    const orderHTML = `
+      <div class="order-card" data-id="${order.order_id}" data-status="${statusSlug}">
+        <div class="order-header">
+          <span class="order-id">#${order.order_id.slice(-6)}</span>
+          <span class="order-date">${formattedDate} at ${formattedTime}</span>
+        </div>
+        <div class="order-items">${itemsHTML}</div>
+        <div class="order-total">Total: ${order.total}</div>
+        ${addressHTML}
+        <div class="order-status">Status: ${order.status}</div>
+        ${getActionButtons(order.status, order.order_id)}
+      </div>
+    `;
+
+    // Add to appropriate status section
+    switch (order.status) {
+      case "To Pay":
+        elements.toPayContent.innerHTML += orderHTML;
+        break;
+      case "To Receive":
+        elements.toReceiveContent.innerHTML += orderHTML;
+        break;
+      case "Completed":
+        elements.completedContent.innerHTML += orderHTML;
+        break;
+      case "Cancelled":
+        elements.cancelledContent.innerHTML += orderHTML;
+        break;
+      case "Refunded":
+        elements.refundedContent.innerHTML += orderHTML;
+        break;
+    }
+
+    // Always add to all orders
+    elements.allOrdersContent.innerHTML += orderHTML;
+  });
+
+  // Add empty states if sections are empty
+  if (elements.toPayContent.children.length === 0)
+    elements.toPayContent.innerHTML = emptyHTML;
+  if (elements.toReceiveContent.children.length === 0)
+    elements.toReceiveContent.innerHTML = emptyHTML;
+  if (elements.completedContent.children.length === 0)
+    elements.completedContent.innerHTML = emptyHTML;
+  if (elements.cancelledContent.children.length === 0)
+    elements.cancelledContent.innerHTML = emptyHTML;
+  if (elements.refundedContent.children.length === 0)
+    elements.refundedContent.innerHTML = emptyHTML;
+}
+
+function getActionButtons(status, orderId) {
+  let buttons = "";
+
+  switch (status) {
+    case "To Pay":
+      buttons = `<button class="btn btn-danger cancel-btn" data-order="${orderId}">Cancel</button>`;
+      break;
+    case "To Receive":
+      buttons = `<button class="btn btn-success receive-btn" data-order="${orderId}">Mark as Received</button>`;
+      break;
+    case "Completed":
+      buttons = `<button class="btn btn-warning refund-btn" data-order="${orderId}">Request Refund</button>`;
+      break;
+  }
+
+  return buttons ? `<div class="order-actions">${buttons}</div>` : "";
+}
+
 // Navigation functions
 function navigateTo(section) {
   state.currentSection = section;
@@ -618,7 +796,11 @@ function navigateTo(section) {
       // Categories are static in HTML
       break;
     case "my-books":
-      // In a real app, this would load purchased books
+      // Load orders when navigating to my-books section
+      fetchOrders().then((orders) => {
+        const processedOrders = processOrders(orders);
+        renderOrders(processedOrders);
+      });
       break;
     case "wishlist":
       renderBooks(state.wishlist, "wishlist-grid");
@@ -648,7 +830,7 @@ function filterBooks() {
   renderBooks(filteredBooks, "browse-books-grid");
 }
 
-function addOrder(items, sectionId, address, statusLabel = "") {
+function addOrder(items, sectionId, address, statusLabel = "To Pay") {
   const sectionContent = document.getElementById(sectionId);
   const allOrdersContent = document.getElementById("all-orders-content");
 
@@ -659,6 +841,9 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
   createAddress(
     address.street,
     address.barangay,
@@ -666,23 +851,34 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     address.province,
     address.region,
     address.zip,
-  ).then((data) => {
+  ).then((addressData) => {
     createOrders(
       address.payment,
       statusLabel,
-      data.address.xata_id,
-      formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0)),
-    ).then((data) => {
-      items.forEach((item) => {
-        console.log("");
-        addOrderItem(data.order.xata_id, item.id, item.quantity, item.price);
+      addressData.address.xata_id,
+      total,
+    ).then((orderData) => {
+      // Add all order items
+      const orderItemPromises = items.map((item) =>
+        addOrderItem(
+          orderData.order.xata_id,
+          item.id,
+          item.quantity,
+          item.price,
+        ),
+      );
+
+      Promise.all(orderItemPromises).then(() => {
+        // After all items are added, refresh the orders display
+        fetchOrders().then((orders) => {
+          const processedOrders = processOrders(orders);
+          renderOrders(processedOrders);
+        });
       });
     });
   });
-  const fullAddress = `${address.street}, ${address.barangay}, ${address.city}, ${address.province}, ${address.region}, ZIP ${address.zip}`;
 
-  // Determine status slug (used in data attributes)
-  const statusSlug = statusLabel.toLowerCase().replace(" ", "-");
+  const fullAddress = `${address.street}, ${address.barangay}, ${address.city}, ${address.province}, ${address.region}, ZIP ${address.zip}`;
 
   // Generate button HTML only if adding to All Orders
   function getActionButtons(targetSectionId = sectionId) {
@@ -701,7 +897,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
   }
 
   const orderHTML = `
-    <div class="order-card" data-id="${orderId}" data-status="${statusSlug}" data-section="${sectionId}">
+    <div class="order-card" data-id="${orderId}" data-status="${statusLabel.toLowerCase().replace(" ", "-")}" data-section="${sectionId}">
       <div class="order-header">
         <span class="order-id">${orderId}</span>
         <span class="order-date">${orderDate} at ${orderTime}</span>
@@ -722,10 +918,10 @@ function addOrder(items, sectionId, address, statusLabel = "") {
           )
           .join("")}
       </div>
-      <div class="order-total">Total: ${formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0))}</div>
+      <div class="order-total">Total: ${formatPrice(total)}</div>
       <div class="order-address"><strong>Shipping to:</strong> ${fullAddress}</div>
+      <div class="order-status">Status: ${statusLabel}</div>
       <div class="order-actions">${getActionButtons("all-orders-content")}</div>
-
     </div>
   `;
 
@@ -741,7 +937,7 @@ function addOrder(items, sectionId, address, statusLabel = "") {
     if (allEmpty) allEmpty.remove();
 
     const allOrderHTML = `
-      <div class="order-card" data-id="${orderId}" data-status="${statusSlug}" data-section="all-orders-content">
+      <div class="order-card" data-id="${orderId}" data-status="${statusLabel.toLowerCase().replace(" ", "-")}" data-section="all-orders-content">
         <div class="order-header">
           <span class="order-id">${orderId}</span>
           <span class="order-date">${orderDate} at ${orderTime}</span>
@@ -762,8 +958,9 @@ function addOrder(items, sectionId, address, statusLabel = "") {
             )
             .join("")}
         </div>
-        <div class="order-total">Total: ${formatPrice(items.reduce((sum, i) => sum + i.price * i.quantity, 0))}</div>
+        <div class="order-total">Total: ${formatPrice(total)}</div>
         <div class="order-address"><strong>Shipping to:</strong> ${fullAddress}</div>
+        <div class="order-status">Status: ${statusLabel}</div>
         <div class="order-actions">${getActionButtons()}</div>
       </div>
     `;
@@ -952,6 +1149,70 @@ function setupEventListeners() {
   });
 
   // ======================
+  // Order Actions
+  // ======================
+  document.addEventListener("click", (e) => {
+    // Handle order action buttons
+    if (e.target.classList.contains("cancel-btn")) {
+      const orderId =
+        e.target.dataset.order || e.target.closest(".order-card")?.dataset.id;
+      if (orderId && confirm("Are you sure you want to cancel this order?")) {
+        // In a real app, you would call an API to update the order status
+        // For now, we'll just update the UI
+        const orderCard = e.target.closest(".order-card");
+        if (orderCard) {
+          orderCard.remove();
+          // Refresh orders to reflect the change
+          fetchOrders().then((orders) => {
+            const processedOrders = processOrders(orders);
+            renderOrders(processedOrders);
+          });
+        }
+        showNotification("Order cancelled", "warning");
+      }
+    }
+
+    if (e.target.classList.contains("receive-btn")) {
+      const orderId =
+        e.target.dataset.order || e.target.closest(".order-card")?.dataset.id;
+      if (orderId) {
+        // In a real app, you would call an API to update the order status
+        const orderCard = e.target.closest(".order-card");
+        if (orderCard) {
+          orderCard.remove();
+          // Refresh orders to reflect the change
+          fetchOrders().then((orders) => {
+            const processedOrders = processOrders(orders);
+            renderOrders(processedOrders);
+          });
+        }
+        showNotification("Order marked as received", "success");
+      }
+    }
+
+    if (e.target.classList.contains("refund-btn")) {
+      const orderId =
+        e.target.dataset.order || e.target.closest(".order-card")?.dataset.id;
+      if (
+        orderId &&
+        confirm("Are you sure you want to request a refund for this order?")
+      ) {
+        // In a real app, you would call an API to update the order status
+        const orderCard = e.target.closest(".order-card");
+        if (orderCard) {
+          orderCard.remove();
+          // Refresh orders to reflect the change
+          fetchOrders().then((orders) => {
+            const processedOrders = processOrders(orders);
+            renderOrders(processedOrders);
+          });
+        }
+        showNotification("Refund requested", "warning");
+      }
+    }
+  });
+
+  // ======================
   // Modal Background Click
   // ======================
   window.addEventListener("click", (e) => {
@@ -959,50 +1220,6 @@ function setupEventListeners() {
       document.querySelectorAll(".modal").forEach((modal) => {
         modal.classList.remove("active");
       });
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    const card = e.target.closest(".order-card");
-    if (!card) return;
-
-    const currentStatus = card.dataset.status;
-    const orderId = card.dataset.id;
-    const currentSection = card.dataset.section;
-
-    // CANCEL → Cancelled
-    if (e.target.classList.contains("cancel-btn")) {
-      if (confirm("Are you sure you want to cancel this order?")) {
-        card.remove();
-        document.getElementById("cancelled-content").innerHTML +=
-          card.outerHTML.replace(
-            'data-status="to-pay"',
-            'data-status="cancelled"',
-          );
-      }
-    }
-
-    // RECEIVE → Completed
-    if (e.target.classList.contains("receive-btn")) {
-      card.remove();
-      const updatedCard = card.outerHTML.replace(
-        'data-status="to-receive"',
-        'data-status="completed"',
-      );
-      document.getElementById("completed-content").innerHTML += updatedCard;
-      document.getElementById("all-orders-content").innerHTML += updatedCard;
-    }
-
-    // REFUND → Refunded
-    if (e.target.classList.contains("refund-btn")) {
-      if (confirm("Are you sure you want to refund this order?")) {
-        card.remove();
-        document.getElementById("refunded-content").innerHTML +=
-          card.outerHTML.replace(
-            'data-status="completed"',
-            'data-status="refunded"',
-          );
-      }
     }
   });
 }

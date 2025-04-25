@@ -1,62 +1,67 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin Dashboard - Order Management</title>
-  <link rel="stylesheet" href="/static/css/admin-dashboard.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-</head>
-<body>
-  <div class="admin-container">
-    <!-- Sidebar -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <h2>BookStore Admin</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Order Management</title>
+    <link rel="stylesheet" href="/static/css/admin-dashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="admin-container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <h2>BookStore Admin</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-item active">
+            <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+          </div>
+          <div class="nav-item">
+            <a href="/customers"><i class="fas fa-users"></i> Customers</a>
+          </div>
+          <div class="nav-item">
+            <a href="/reports"><i class="fas fa-chart-line"></i> Reports</a>
+          </div>
+          <div class="nav-item">
+            <a href="/logout"
+              ><i class="fas fa-right-from-bracket"></i> Logout</a
+            >
+          </div>
+        </nav>
       </div>
-      <nav class="sidebar-nav">
-        <div class="nav-item active">
-          <a href="#"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <div class="header">
+          <h1>Order Management</h1>
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search orders..." />
+          </div>
         </div>
-        <div class="nav-item">
-          <a href="/customers"><i class="fas fa-users"></i> Customers</a>
+
+        <!-- Order Tabs -->
+        <div class="order-tabs">
+          <button class="tab-btn active" data-tab="to-pay">To Pay</button>
+          <button class="tab-btn" data-tab="to-ship">To Ship</button>
+          <button class="tab-btn" data-tab="to-deliver">To Deliver</button>
+          <button class="tab-btn" data-tab="completed">Completed</button>
+          <button class="tab-btn" data-tab="cancelled">Cancelled</button>
+          <button class="tab-btn" data-tab="refunded">Refunded</button>
         </div>
-        <div class="nav-item">
-          <a href="/reports"><i class="fas fa-chart-line"></i> Reports</a>
+
+        <!-- Orders Container -->
+        <div class="orders-container" id="orders-container">
+          <!-- Orders will be dynamically inserted here by JavaScript -->
         </div>
-        <div class="nav-item">
-          <a href="/logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
-        </div>
-      </nav>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <div class="header">
-        <h1>Order Management</h1>
-        <div class="search-bar">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="Search orders..." />
-        </div>
-      </div>
-
-      <!-- Order Tabs -->
-      <div class="order-tabs">
-        <button class="tab-btn active" data-tab="to-pay">To Pay</button>
-        <button class="tab-btn" data-tab="to-ship">To Ship</button>
-        <button class="tab-btn" data-tab="to-deliver">To Deliver</button>
-        <button class="tab-btn" data-tab="completed">Completed</button>
-        <button class="tab-btn" data-tab="cancelled">Cancelled</button>
-        <button class="tab-btn" data-tab="refunded">Refunded</button>
-      </div>
-
-      <!-- Orders Container -->
-      <div class="orders-container" id="orders-container">
-        <!-- Orders will be dynamically inserted here by JavaScript -->
-      </div>
-    </div>
-  </div>
-
-  <script src="/static/js/admin-dashboard.js"></script>
-</body>
+    <script src="/static/js/admin-dashboard.js"></script>
+  </body>
 </html>
