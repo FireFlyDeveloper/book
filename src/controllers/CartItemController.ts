@@ -73,8 +73,12 @@ export default class CartItemController {
   }
 
   static async delete(c: Context) {
-    const { xata_id } = c.req.param();
-    const deleted = await deleteCartItem(xata_id);
+    const { book_id } = c.req.param();
+    const session = c.get("session");
+    const user_id = session.get("id");
+    const cart = await getCartsByUserId(user_id);
+    let cart_id = cart[0]?.xata_id;
+    const deleted = await deleteCartItem(cart_id, book_id);
     return c.json({ message: "Cart item deleted", deleted });
   }
 }

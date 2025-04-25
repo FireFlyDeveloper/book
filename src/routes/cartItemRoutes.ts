@@ -28,7 +28,7 @@ cartItemRouter.post(
   CartItemController.update,
 );
 cartItemRouter.delete(
-  "/delete-cart-item/:xata_id",
+  "/delete-cart-item/:book_id",
   authMiddleware,
   CartItemController.delete,
 );

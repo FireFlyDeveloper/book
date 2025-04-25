@@ -55,10 +55,12 @@ export const updateCartItem = async (
   return result.rows[0];
 };
 
-export const deleteCartItem = async (xata_id: string) => {
+export const deleteCartItem = async (cart_id: string, book_id: string) => {
   const result = await pool.query(
-    "DELETE FROM cart_items WHERE xata_id = $1 RETURNING *;",
-    [xata_id],
+    `DELETE FROM cart_items
+     WHERE cart_id = $1 AND book_id = $2
+     RETURNING *;`,
+    [cart_id, book_id],
   );
   return result.rows[0];
 };

@@ -68,6 +68,23 @@ async function fetchCart() {
   }
 }
 
+async function removeCartItem(id) {
+  try {
+    const response = await fetch(`/api/delete-cart-item/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error removing cart item:", error);
+    return [];
+  }
+}
+
 async function fetchUser() {
   try {
     const response = await fetch("/api/get-user");
@@ -393,14 +410,16 @@ function addToCart(book) {
 }
 
 function removeFromCart(bookId) {
-  const book = state.cart.find((item) => item.id === bookId);
-  state.cart = state.cart.filter((item) => item.id !== bookId);
-  updateCartCount();
-  renderCartItems();
+  removeCartItem(bookId).then(() => {
+    const book = state.cart.find((item) => item.id === bookId);
+    state.cart = state.cart.filter((item) => item.id !== bookId);
+    updateCartCount();
+    renderCartItems();
 
-  if (book) {
-    showNotification(`${book.title} removed from cart`, "warning");
-  }
+    if (book) {
+      showNotification(`${book.title} removed from cart`, "warning");
+    }
+  });
 }
 
 function increaseQuantity(bookId) {
