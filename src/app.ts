@@ -13,6 +13,7 @@ import cartItemRouter from "./routes/cartItemRoutes";
 import addressesRouter from "./routes/addresses";
 import ordersRouter from "./routes/order";
 import orderItemsRouter from "./routes/orderItems";
+import shipmentRouter from "./routes/shipment";
 
 const app = new Hono<{
   Variables: {
@@ -46,6 +47,8 @@ app.route("/api", cartItemRouter);
 app.route("/api", addressesRouter);
 app.route("/api", ordersRouter);
 app.route("/api", orderItemsRouter);
+app.route("/api", shipmentRouter);
+
 app.get("/logout", async (c: Context) => {
   const session = c.get("session");
   session.forget("id");
