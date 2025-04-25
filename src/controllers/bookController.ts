@@ -61,7 +61,11 @@ export default class BooksController {
 
   static async getAll(c: Context) {
     const books = await getAllBooks();
-    return c.json(books);
+    const app = books.map((book) => {
+      book.id = book.xata_id;
+      return book;
+    });
+    return c.json(app);
   }
 
   static async getById(c: Context) {

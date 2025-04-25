@@ -1,127 +1,3 @@
-// Sample book data
-const books = [
-  {
-    id: 1,
-    title: "The Midnight Library",
-    author: "Matt Haig",
-    price: 15.99,
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "fiction",
-    description:
-      "Between life and death there is a library, and within that library, the shelves go on forever. Every book provides a chance to try another life you could have lived.",
-    pages: 304,
-    publisher: "Canongate Books",
-    language: "English",
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Atomic Habits",
-    author: "James Clear",
-    price: 14.99,
-    image:
-      "https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "non-fiction",
-    description:
-      "No matter your goals, Atomic Habits offers a proven framework for improving--every day. James Clear, one of the world's leading experts on habit formation, reveals practical strategies.",
-    pages: 320,
-    publisher: "Avery",
-    language: "English",
-    featured: true,
-  },
-  {
-    id: 3,
-    title: "The Hobbit",
-    author: "J.R.R. Tolkien",
-    price: 12.99,
-    image:
-      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "fantasy",
-    description:
-      "Bilbo Baggins is a hobbit who enjoys a comfortable, unambitious life, rarely traveling any farther than his pantry or cellar. But his contentment is disturbed when the wizard Gandalf.",
-    pages: 310,
-    publisher: "George Allen & Unwin",
-    language: "English",
-    featured: true,
-  },
-  {
-    id: 4,
-    title: "Dune",
-    author: "Frank Herbert",
-    price: 16.99,
-    image:
-      "https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "sci-fi",
-    description:
-      "Set on the desert planet Arrakis, Dune is the story of the boy Paul Atreides, heir to a noble family tasked with ruling an inhospitable world where the only thing of value is the 'spice' melange.",
-    pages: 412,
-    publisher: "Chilton Books",
-    language: "English",
-    featured: false,
-  },
-  {
-    id: 5,
-    title: "Gone Girl",
-    author: "Gillian Flynn",
-    price: 13.99,
-    image:
-      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "mystery",
-    description:
-      "On a warm summer morning in North Carthage, Missouri, it is Nick and Amy Dunne's fifth wedding anniversary. Presents are being wrapped and reservations are being made when Nick's clever and beautiful wife disappears.",
-    pages: 415,
-    publisher: "Crown Publishing Group",
-    language: "English",
-    featured: false,
-  },
-  {
-    id: 6,
-    title: "Pride and Prejudice",
-    author: "Jane Austen",
-    price: 9.99,
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "romance",
-    description:
-      "Pride and Prejudice follows the turbulent relationship between Elizabeth Bennet, the daughter of a country gentleman, and Fitzwilliam Darcy, a rich aristocratic landowner.",
-    pages: 279,
-    publisher: "T. Egerton, Whitehall",
-    language: "English",
-    featured: false,
-  },
-  {
-    id: 7,
-    title: "Becoming",
-    author: "Michelle Obama",
-    price: 18.99,
-    image:
-      "https://images.unsplash.com/photo-1589998059171-988d887df646?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "biography",
-    description:
-      "In her memoir, a work of deep reflection and mesmerizing storytelling, Michelle Obama invites readers into her world, chronicling the experiences that have shaped her.",
-    pages: 448,
-    publisher: "Crown",
-    language: "English",
-    featured: true,
-  },
-  {
-    id: 8,
-    title: "The Silent Patient",
-    author: "Alex Michaelides",
-    price: 14.99,
-    image:
-      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    genre: "mystery",
-    description:
-      "Alicia Berenson's life is seemingly perfect. A famous painter married to an in-demand fashion photographer, she lives in a grand house overlooking a park in one of London's most desirable areas.",
-    pages: 325,
-    publisher: "Celadon Books",
-    language: "English",
-    featured: false,
-  },
-];
-
 // State management
 let state = {
   cart: [],
@@ -136,6 +12,21 @@ let state = {
     avatar: "", // Will contain base64 image data or URL
   },
 };
+
+async function fetchBooks() {
+  try {
+    const response = await fetch("/api/books");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    return [];
+  }
+}
+
+let books;
 
 // DOM Elements
 const elements = {
@@ -215,7 +106,7 @@ function showNotification(message, type = "success") {
 
 // Helper functions
 function formatPrice(price) {
-  return `₱${price.toFixed(2)}`;
+  return `₱${price}`;
 }
 
 function updateCartCount() {
@@ -916,9 +807,12 @@ function showCheckout(items) {
 
 // Initialize the app
 function init() {
-  setupEventListeners();
-  navigateTo("home");
-  renderCartItems();
+  fetchBooks().then((data) => {
+    books = data;
+    setupEventListeners();
+    navigateTo("home");
+    renderCartItems();
+  });
 
   // Set default avatar if none exists
   const avatarImg = document.getElementById("avatar-image");
