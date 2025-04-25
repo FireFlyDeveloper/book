@@ -255,8 +255,7 @@ function renderBooks(books, containerId) {
         !e.target.closest(".add-to-cart") &&
         !e.target.closest(".wishlist-btn")
       ) {
-        const bookId = parseInt(card.dataset.id);
-        const book = books.find((b) => b.id === bookId);
+        const book = books.find((b) => b.id === card.dataset.id);
         if (book) {
           state.currentBook = book;
           renderBookDetail(book);
