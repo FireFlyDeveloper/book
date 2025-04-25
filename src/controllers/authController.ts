@@ -37,10 +37,23 @@ export default class AuthController {
     if (!xata_id) {
       return c.json({ message: "User ID is required" }, 400);
     }
-    const user = await getUserById(xata_id);
+    const session = c.get("session");
+    const sessionId = session.get("id");
+    const user = await getUserById(sessionId);
     if (!user) {
       return c.json({ message: "User not found" }, 404);
     }
+    return c.json(user);
+  }
+
+  static async getByIdSession(c: Context) {
+    const session = c.get("session");
+    const sessionId = session.get("id");
+    const user = await getUserById(sessionId);
+    if (!user) {
+      return c.json({ message: "User not found" }, 404);
+    }
+    delete user.password;
     return c.json(user);
   }
 

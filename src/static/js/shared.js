@@ -5,13 +5,26 @@ let state = {
   currentBook: null,
   currentSection: "home",
   user: {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+639123456789",
-    joinDate: "January 2023",
-    avatar: "", // Will contain base64 image data or URL
+    name: "",
+    email: "",
+    phone: "",
+    xata_createdat: "",
+    avatar: "",
   },
 };
+
+async function fetchUser() {
+  try {
+    const response = await fetch("/api/get-user");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+}
 
 async function fetchBooks() {
   try {
@@ -686,7 +699,9 @@ function setupEventListeners() {
   document.getElementById("edit-profile-btn").addEventListener("click", () => {
     document.getElementById("edit-profile-form").classList.add("active");
     document.getElementById("edit-name").value = state.user.name;
-    document.getElementById("edit-phone").value = state.user.phone;
+    document.getElementById("edit-phone").value = state.user.phone
+      ? state.user.phone
+      : "";
     document.getElementById("edit-email").value = state.user.email;
   });
 
@@ -806,11 +821,20 @@ function showCheckout(items) {
 
 // Initialize the app
 function init() {
-  fetchBooks().then((data) => {
-    books = data;
-    setupEventListeners();
-    navigateTo("home");
-    renderCartItems();
+  fetchUser().then((user) => {
+    state.user = user;
+    document.getElementById("account-name").textContent = state.user.name;
+    document.getElementById("account-phone").textContent = state.user.phone;
+    document.getElementById("account-email").textContent = state.user.email;
+    document.getElementById("account-join-date").textContent = new Date(
+      state.user.xata_createdat,
+    ).toLocaleDateString();
+    fetchBooks().then((data) => {
+      books = data;
+      setupEventListeners();
+      navigateTo("home");
+      renderCartItems();
+    });
   });
 
   // Set default avatar if none exists
