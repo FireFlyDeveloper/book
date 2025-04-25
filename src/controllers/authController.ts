@@ -63,8 +63,8 @@ export default class AuthController {
     if (!xata_id) {
       return c.json({ message: "User ID is required" }, 400);
     }
-    const { name, email, password } = await c.req.json();
-    const user = await updateUser(xata_id, name, email, password);
+    const { name, email } = await c.req.json();
+    const user = await updateUser(xata_id, name, email);
     if (!user) {
       return c.json({ message: "User not found" }, 404);
     }

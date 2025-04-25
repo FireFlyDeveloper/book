@@ -1,36 +1,36 @@
 // Sample customer data
-const customers = [
-  {
-    id: "CUST-1001",
-    name: "John Smith",
-    email: "john@example.com",
-    phone: "(555) 123-4567",
-    joined: "2023-01-15",
-    orders: 5,
-    status: "active",
-    type: "premium",
-  },
-  {
-    id: "CUST-1002",
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    phone: "(555) 987-6543",
-    joined: "2023-02-20",
-    orders: 2,
-    status: "active",
-    type: "regular",
-  },
-  {
-    id: "CUST-1003",
-    name: "Michael Brown",
-    email: "michael@example.com",
-    phone: "(555) 456-7890",
-    joined: "2023-03-10",
-    orders: 8,
-    status: "inactive",
-    type: "regular",
-  },
-];
+let customers;
+
+async function updateCustomer(id, name, email) {
+  try {
+    const response = await fetch(`/api/update-user/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email }),
+    });
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const updatedCustomer = await response.json();
+  } catch (error) {
+    console.error("Error updating customer:", error);
+  }
+}
+
+async function fetchCustomers() {
+  try {
+    const response = await fetch("/api/list-user");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+  }
+}
 
 // DOM Elements
 const customersTableBody = document.getElementById("customers-table-body");
@@ -40,14 +40,16 @@ const customerForm = document.getElementById("customer-form");
 
 // Initialize
 document.addEventListener("DOMContentLoaded", () => {
-  renderCustomers();
-  setupEventListeners();
+  fetchCustomers().then((data) => {
+    customers = data;
+    renderCustomers();
+    setupEventListeners();
+  });
 });
 
 // Render customers table
 function renderCustomers(filter = "all") {
   customersTableBody.innerHTML = "";
-
   const filteredCustomers =
     filter === "all"
       ? customers
@@ -58,27 +60,20 @@ function renderCustomers(filter = "all") {
   filteredCustomers.forEach((customer) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-            <td>${customer.id}</td>
-            <td>${customer.name}</td>
-            <td>${customer.email}</td>
-            <td>${customer.phone}</td>
-            <td>${customer.joined}</td>
-            <td>${customer.orders}</td>
-            <td>
-                <span class="status-badge ${customer.status === "active" ? "status-active" : "status-inactive"}">
-                    ${customer.status === "active" ? "Active" : "Inactive"}
-                </span>
-                ${customer.type === "premium" ? '<span class="status-badge status-premium">Premium</span>' : ""}
-            </td>
-            <td>
-                <button class="btn btn-outline btn-sm edit-customer" data-id="${customer.id}">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-outline btn-sm delete-customer" data-id="${customer.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
+              <td>${customer.xata_id}</td>
+              <td>${customer.name}</td>
+              <td>${customer.email}</td>
+              <td>${customer.phone}</td>
+              <td>${new Date(customer.xata_createdat)}</td>
+              <td>
+                  <button class="btn btn-outline btn-sm edit-customer" data-id="${customer.xata_id}">
+                      <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn btn-outline btn-sm delete-customer" data-id="${customer.xata_id}">
+                      <i class="fas fa-trash"></i>
+                  </button>
+              </td>
+          `;
     customersTableBody.appendChild(row);
   });
 }
@@ -88,13 +83,6 @@ function setupEventListeners() {
   // Filter customers
   customerFilter.addEventListener("change", (e) => {
     renderCustomers(e.target.value);
-  });
-
-  // Add customer button
-  document.getElementById("add-customer").addEventListener("click", () => {
-    document.getElementById("modal-title").textContent = "Add New Customer";
-    customerForm.reset();
-    customerModal.style.display = "block";
   });
 
   // Close modal
@@ -110,6 +98,10 @@ function setupEventListeners() {
   // Form submission
   customerForm.addEventListener("submit", (e) => {
     e.preventDefault();
+    const id = document.getElementById("customer-id").value;
+    const name = document.getElementById("customer-name").value;
+    const email = document.getElementById("customer-email").value;
+    updateCustomer(id, name, email);
     // Save customer logic would go here
     alert("Customer saved successfully!");
     customerModal.style.display = "none";
@@ -130,15 +122,13 @@ function setupEventListeners() {
 }
 
 function editCustomer(id) {
-  const customer = customers.find((c) => c.id === id);
+  const customer = customers.find((c) => c.xata_id === id);
   if (customer) {
     document.getElementById("modal-title").textContent = "Edit Customer";
-    document.getElementById("customer-id").value = customer.id;
+    document.getElementById("customer-id").value = customer.xata_id;
     document.getElementById("customer-name").value = customer.name;
     document.getElementById("customer-email").value = customer.email;
     document.getElementById("customer-phone").value = customer.phone;
-    document.getElementById("customer-status").value = customer.status;
-    document.getElementById("customer-type").value = customer.type;
     customerModal.style.display = "block";
   }
 }

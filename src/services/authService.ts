@@ -31,15 +31,14 @@ export const updateUser = async (
   xata_id: string,
   name: string,
   email: string,
-  password: string,
 ) => {
   const query = `
     UPDATE users
-    SET name = $1, email = $2, password = $3
-    WHERE xata_id = $4
+    SET name = $1, email = $2
+    WHERE xata_id = $3  
     RETURNING *;
   `;
-  const values = [name, email, password, xata_id];
+  const values = [name, email, xata_id];
   const result = await pool.query(query, values);
   return result.rows[0];
 };

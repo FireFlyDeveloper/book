@@ -61,12 +61,8 @@ app.get("/register", checkMiddleware, (c) =>
   c.html(serveHTML("register.html")),
 );
 app.get("/home", authMiddleware, (c) => c.html(serveHTML("index.html")));
-app.get("/dashboard", authMiddleware, (c) =>
-  c.html(serveHTML("admin-dashboard.html")),
-);
-app.get("/customers", authMiddleware, (c) =>
-  c.html(serveHTML("customer.html")),
-);
-app.get("/reports", authMiddleware, (c) => c.html(serveHTML("reports.html")));
+app.get("/dashboard", (c) => c.html(serveHTML("admin-dashboard.html")));
+app.get("/customers", (c) => c.html(serveHTML("customer.html")));
+app.get("/reports", (c) => c.html(serveHTML("reports.html")));
 
 export default app;
