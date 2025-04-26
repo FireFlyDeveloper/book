@@ -60,10 +60,6 @@
             <div class="error-text" id="password-error"></div>
           </div>
 
-          <div class="form-group">
-            <a href="#" class="forgot-password">Forgot password?</a>
-          </div>
-
           <div class="form-feedback" id="form-feedback"></div>
 
           <button type="submit" class="btn btn-primary" id="login-button">
@@ -89,35 +85,8 @@
       </div>
     </div>
 
-    <script src="/static/js/auth.js"></script>
-    <!-- Forgot Password Modal -->
-    <div class="modal-overlay" id="forgotPasswordModal">
-      <div class="modal-content">
-        <button class="modal-close" id="closeModal">&times;</button>
-        <div class="modal-header">
-          <h2>Reset Password</h2>
-        </div>
-        <p class="reset-instructions">
-          Enter your email and we'll send you a link to reset your password.
-        </p>
-        <form id="forgotPasswordForm">
-          <div class="form-group">
-            <label for="reset-email">Email Address</label>
-            <div class="input-with-icon">
-              <i class="fas fa-envelope"></i>
-              <input
-                type="email"
-                id="reset-email"
-                placeholder="your@email.com"
-                required
-              />
-            </div>
-            <div class="error-text" id="reset-email-error"></div>
-          </div>
-          <button type="submit" class="btn btn-primary" id="reset-button">
-            Send Reset Link
-          </button>
-        </form>
+    <script src="/static/js/login_admin.js"></script>
+
       </div>
     </div>
   </body>

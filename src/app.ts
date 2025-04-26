@@ -64,5 +64,7 @@ app.get("/home", authMiddleware, (c) => c.html(serveHTML("index.html")));
 app.get("/dashboard", (c) => c.html(serveHTML("admin-dashboard.html")));
 app.get("/customers", (c) => c.html(serveHTML("customer.html")));
 app.get("/reports", (c) => c.html(serveHTML("reports.html")));
+app.get("/", (c) => c.html(serveHTML("login-buttons.html")));
+app.get("/admin-login", (c) => c.html(serveHTML("login_admin.html")));
 
 export default app;

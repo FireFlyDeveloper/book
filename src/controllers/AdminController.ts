@@ -51,4 +51,13 @@ export default class AdminController {
     const deleted = await deleteAdmin(xata_id);
     return c.json({ message: "Admin deleted", deleted });
   }
+
+  static async authenticate(c: Context) {
+    const { email } = await c.req.json();
+    const admin = await authenticateAdmin(email);
+    if (!admin) {
+      return c.json({ message: "Admin not found" }, 404);
+    }
+    return c.json(admin);
+  }
 }

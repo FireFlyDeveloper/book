@@ -8,5 +8,6 @@ adminRouter.get("/get-admin/:xata_id", AdminController.getById);
 adminRouter.put("/update-admin/:xata_id", AdminController.update);
 adminRouter.delete("/delete-admin/:xata_id", AdminController.delete);
 adminRouter.get("/list-admins", AdminController.getAll);
+adminRouter.post("/login-admin", AdminController.authenticate);
 
 export default adminRouter;
