@@ -14,6 +14,7 @@ import addressesRouter from "./routes/addresses";
 import ordersRouter from "./routes/order";
 import orderItemsRouter from "./routes/orderItems";
 import shipmentRouter from "./routes/shipment";
+import { adminMiddleware } from "./middlewares/adminMiddleware";
 
 const app = new Hono<{
   Variables: {
@@ -61,7 +62,9 @@ app.get("/register", checkMiddleware, (c) =>
   c.html(serveHTML("register.html")),
 );
 app.get("/home", authMiddleware, (c) => c.html(serveHTML("index.html")));
-app.get("/dashboard", (c) => c.html(serveHTML("admin-dashboard.html")));
+app.get("/dashboard", adminMiddleware, (c) =>
+  c.html(serveHTML("admin-dashboard.html")),
+);
 app.get("/customers", (c) => c.html(serveHTML("customer.html")));
 app.get("/reports", (c) => c.html(serveHTML("reports.html")));
 app.get("/", (c) => c.html(serveHTML("login-buttons.html")));

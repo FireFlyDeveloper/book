@@ -7,6 +7,7 @@ import {
   deleteAdmin,
   authenticateAdmin,
 } from "../services/adminService";
+import { generateToken } from "../utils/helpers";
 
 export default class AdminController {
   static async create(c: Context) {
@@ -58,6 +59,12 @@ export default class AdminController {
     if (!admin) {
       return c.json({ message: "Admin not found" }, 404);
     }
+    const token = generateToken(admin);
+
+    const session = c.get("session");
+    session.set("id", admin.xata_id);
+    session.set("jwt", token);
+
     return c.json(admin);
   }
 }
